@@ -19,6 +19,7 @@ class HausaMahjongApplication : Application() {
         super.onCreate()
 
         adManager = AdManager()
+        adManager.init(this)
         purchaseManager = PurchaseManager(this)
 
         LevelRepository.init(this)

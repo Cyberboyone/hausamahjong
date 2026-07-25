@@ -20,8 +20,10 @@ class RewardedHintFlow(
 
     private var billingClient: BillingClient? = null
     private var skuDetails: SkuDetails? = null
+    private var appContext: Context? = null
 
     fun init(context: Context) {
+        appContext = context.applicationContext
         billingClient = BillingClient.newBuilder(context)
             .setListener(this)
             .enablePendingPurchases()
@@ -43,7 +45,7 @@ class RewardedHintFlow(
     }
 
     private fun querySkuDetails() {
-        val skuList = listOf(context.getString(R.string.remove_ads_product_id))
+        val skuList = listOf(appContext!!.getString(R.string.remove_ads_product_id))
         val params = SkuDetailsParams.newBuilder()
             .setSkusList(skuList)
             .setType(BillingClient.SkuType.INAPP)
@@ -83,18 +85,11 @@ class RewardedHintFlow(
 
         billingClient?.acknowledgePurchase(params) { result ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                adManager.setRemoveAdsPurchased(context, true)
+                adManager.setRemoveAdsPurchased(appContext!!, true)
             }
         }
     }
 
     fun isRemoveAdsPurchased(): Boolean = adManager.isRemoveAdsPurchased()
 
-    companion object {
-        private var context: Context? = null
-
-        fun init(context: Context) {
-            this.context = context.applicationContext
-        }
-    }
 }

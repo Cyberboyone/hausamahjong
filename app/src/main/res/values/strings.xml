@@ -20,6 +20,7 @@
     <!-- Game -->
     <string name="level">Level</string>
     <string name="moves">Moves</string>
+    <string name="score">Score</string>
     <string name="hints">Hints</string>
     <string name="undo">Undo</string>
     <string name="hint">Hint</string>

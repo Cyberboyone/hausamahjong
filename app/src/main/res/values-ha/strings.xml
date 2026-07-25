@@ -20,6 +20,7 @@
     <!-- Game -->
     <string name="level">Matsayi</string>
     <string name="moves">Haukawu</string>
+    <string name="score">Maki</string>
     <string name="hints">Shawarwari</string>
     <string name="undo">Dawo</string>
     <string name="hint">Shawara</string>

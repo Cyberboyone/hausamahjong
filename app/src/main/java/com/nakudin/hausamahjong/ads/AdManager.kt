@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import com.unity3d.ads.IUnityAdsLoadListener
 import com.unity3d.ads.UnityAds
 import com.unity3d.ads.UnityAdsLoadOptions
-import com.unity3d.services.banners.BannerPosition
-import com.unity3d.services.banners.UnityBannerListener
 
 class AdManager {
     private var interstitialAdId = "interstitial"
