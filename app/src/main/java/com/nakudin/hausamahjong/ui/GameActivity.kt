@@ -41,8 +41,8 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
     private var timer: CountDownTimer? = null
     private var timeRemaining = 0L
 
-    private lateinit var adManager: AdManager
-    private lateinit var purchaseManager: PurchaseManager
+    private var adManager: AdManager? = null
+    private var purchaseManager: PurchaseManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +59,11 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
 
         setContentView(R.layout.activity_game)
 
-        adManager = (application as com.nakudin.hausamahjong.HausaMahjongApplication).adManager
-        purchaseManager = (application as com.nakudin.hausamahjong.HausaMahjongApplication).purchaseManager
+        val app = application as com.nakudin.hausamahjong.HausaMahjongApplication
+        app.ensureAdsInitialized()
+        app.ensureBillingInitialized()
+        adManager = app.adManager
+        purchaseManager = app.purchaseManager
 
         levelNumber = intent.getIntExtra("LEVEL_NUMBER", 1)
         initViews()
@@ -204,8 +207,8 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
 
         btnWatch.setOnClickListener {
             dialog.dismiss()
-            if (adManager.isRewardedAdReady()) {
-                adManager.showRewardedAd(this) {
+            if (adManager?.isRewardedAdReady() == true) {
+                adManager?.showRewardedAd(this) {
                     val pair = MatchEngine.getHint(board!!)
                     if (pair != null) {
                         boardView.showHint(listOf(pair.first, pair.second))
@@ -283,8 +286,8 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
 
         dialog.show()
 
-        if (adManager.shouldShowInterstitialAfterLevel() && adManager.isInterstitialAdReady()) {
-            adManager.showInterstitialAd(this)
+        if (adManager?.shouldShowInterstitialAfterLevel() == true && adManager?.isInterstitialAdReady() == true) {
+            adManager?.showInterstitialAd(this)
         }
     }
 

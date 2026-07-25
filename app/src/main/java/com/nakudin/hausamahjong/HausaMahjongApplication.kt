@@ -10,40 +10,45 @@ import com.nakudin.hausamahjong.data.TileSetRepository
 
 class HausaMahjongApplication : Application() {
 
-    lateinit var adManager: AdManager
+    var adManager: AdManager? = null
         private set
 
-    lateinit var purchaseManager: PurchaseManager
+    var purchaseManager: PurchaseManager? = null
         private set
+
+    private var adsInitialized = false
+    private var billingInitialized = false
 
     override fun onCreate() {
         super.onCreate()
 
         try {
             LevelRepository.init(this)
-        } catch (e: Exception) {
-            Log.e("HausaMahjong", "Failed to init LevelRepository", e)
-        }
-
-        try {
             ProverbRepository.init(this)
-        } catch (e: Exception) {
-            Log.e("HausaMahjong", "Failed to init ProverbRepository", e)
-        }
-
-        try {
             TileSetRepository.init(this)
         } catch (e: Exception) {
-            Log.e("HausaMahjong", "Failed to init TileSetRepository", e)
+            Log.e("HausaMahjong", "Failed to init repositories", e)
         }
+    }
 
-        adManager = AdManager()
+    fun ensureAdsInitialized() {
+        if (adsInitialized) return
+        adsInitialized = true
         try {
-            adManager.init(this)
+            adManager = AdManager()
+            adManager?.init(this)
         } catch (e: Exception) {
             Log.e("HausaMahjong", "Failed to init AdManager", e)
         }
+    }
 
-        purchaseManager = PurchaseManager(this)
+    fun ensureBillingInitialized() {
+        if (billingInitialized) return
+        billingInitialized = true
+        try {
+            purchaseManager = PurchaseManager(this)
+        } catch (e: Exception) {
+            Log.e("HausaMahjong", "Failed to init PurchaseManager", e)
+        }
     }
 }
