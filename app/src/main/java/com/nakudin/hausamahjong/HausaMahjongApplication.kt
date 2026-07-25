@@ -1,6 +1,7 @@
 package com.nakudin.hausamahjong
 
 import android.app.Application
+import android.util.Log
 import com.nakudin.hausamahjong.ads.AdManager
 import com.nakudin.hausamahjong.ads.PurchaseManager
 import com.nakudin.hausamahjong.data.LevelRepository
@@ -18,12 +19,31 @@ class HausaMahjongApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        adManager = AdManager()
-        adManager.init(this)
-        purchaseManager = PurchaseManager(this)
+        try {
+            LevelRepository.init(this)
+        } catch (e: Exception) {
+            Log.e("HausaMahjong", "Failed to init LevelRepository", e)
+        }
 
-        LevelRepository.init(this)
-        ProverbRepository.init(this)
-        TileSetRepository.init(this)
+        try {
+            ProverbRepository.init(this)
+        } catch (e: Exception) {
+            Log.e("HausaMahjong", "Failed to init ProverbRepository", e)
+        }
+
+        try {
+            TileSetRepository.init(this)
+        } catch (e: Exception) {
+            Log.e("HausaMahjong", "Failed to init TileSetRepository", e)
+        }
+
+        adManager = AdManager()
+        try {
+            adManager.init(this)
+        } catch (e: Exception) {
+            Log.e("HausaMahjong", "Failed to init AdManager", e)
+        }
+
+        purchaseManager = PurchaseManager(this)
     }
 }

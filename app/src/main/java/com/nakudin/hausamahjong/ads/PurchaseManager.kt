@@ -2,6 +2,7 @@ package com.nakudin.hausamahjong.ads
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -18,18 +19,23 @@ class PurchaseManager(
     private val context: Context
 ) : PurchasesUpdatedListener {
 
-    private var billingClient: BillingClient
+    private lateinit var billingClient: BillingClient
     private var productDetails: ProductDetails? = null
     private var isRemoveAdsPurchased = false
+    private var isAvailable = false
 
     init {
-        billingClient = BillingClient.newBuilder(context)
-            .setListener(this)
-            .enablePendingPurchases()
-            .build()
-
-        loadPurchaseState()
-        startConnection()
+        try {
+            billingClient = BillingClient.newBuilder(context)
+                .setListener(this)
+                .enablePendingPurchases()
+                .build()
+            loadPurchaseState()
+            startConnection()
+            isAvailable = true
+        } catch (e: Exception) {
+            Log.e("PurchaseManager", "Billing init failed", e)
+        }
     }
 
     private fun loadPurchaseState() {
@@ -95,6 +101,7 @@ class PurchaseManager(
     }
 
     fun launchRemoveAdsPurchase(activity: Activity) {
+        if (!isAvailable) return
         val details = productDetails ?: return
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
@@ -140,6 +147,10 @@ class PurchaseManager(
     fun isRemoveAdsPurchased(): Boolean = isRemoveAdsPurchased
 
     fun restorePurchases(callback: (Boolean) -> Unit) {
+        if (!isAvailable) {
+            callback(false)
+            return
+        }
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
             .build()

@@ -2,6 +2,8 @@ package com.nakudin.hausamahjong.ads
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
+import com.unity3d.ads.IUnityAdsInitializationListener
 import com.unity3d.ads.IUnityAdsLoadListener
 import com.unity3d.ads.IUnityAdsShowListener
 import com.unity3d.ads.UnityAds
@@ -26,8 +28,15 @@ class AdManager {
 
         if (!removeAdsPurchased) {
             isInitialized = true
-            loadInterstitialAd(context)
-            loadRewardedAd(context)
+            UnityAds.initialize(context, TEST_GAME_ID, true, object : IUnityAdsInitializationListener {
+                override fun onInitializationComplete() {
+                    loadInterstitialAd(context)
+                    loadRewardedAd(context)
+                }
+                override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError, message: String) {
+                    Log.w("AdManager", "Unity Ads init failed: $message")
+                }
+            })
         }
     }
 
@@ -119,5 +128,9 @@ class AdManager {
     fun saveLevelCompletions(context: Context) {
         val prefs = context.getSharedPreferences("ad_prefs", Context.MODE_PRIVATE)
         prefs.edit().putInt("level_completions", levelCompletions).apply()
+    }
+
+    companion object {
+        private const val TEST_GAME_ID = "00000"
     }
 }
