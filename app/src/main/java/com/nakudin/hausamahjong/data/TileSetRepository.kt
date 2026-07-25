@@ -49,8 +49,8 @@ object TileSetRepository {
     fun getDrawableResId(symbolId: String): Int {
         val tileSet = getTileSet(symbolId) ?: return R.drawable.tile_placeholder
         val resName = tileSet.drawable_ref.ifEmpty { "tile_$symbolId" }
-        return context?.resources?.getIdentifier(resName, "drawable", context?.packageName)
-            ?: R.drawable.tile_placeholder
+        val resId = context?.resources?.getIdentifier(resName, "drawable", context?.packageName) ?: 0
+        return if (resId != 0) resId else R.drawable.tile_placeholder
     }
 
     fun getDrawable(context: Context, symbolId: String): Drawable? {
