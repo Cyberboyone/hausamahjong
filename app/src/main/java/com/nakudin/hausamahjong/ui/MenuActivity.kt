@@ -36,7 +36,6 @@ class MenuActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_menu)
 
-        LevelRepository.init(this)
         initViews()
         setupClickListeners()
     }
