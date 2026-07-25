@@ -91,7 +91,7 @@ object LevelLoader {
             for (x in startX..endX) {
                 for (y in startY..endY) {
                     if (x in 0 until data.width && y in 0 until data.height) {
-                        val symbol = symbols[tileId % symbols.size]
+                        val symbol = symbols[(tileId / 2) % symbols.size]
                         tiles.add(TileData(symbol, layer, x, y))
                         tileId++
                     }
@@ -115,7 +115,7 @@ object LevelLoader {
                     val distX = kotlin.math.abs(x - centerX)
                     val distY = kotlin.math.abs(y - centerY)
                     if (distX + distY <= radius) {
-                        val symbol = symbols[tileId % symbols.size]
+                        val symbol = symbols[(tileId / 2) % symbols.size]
                         tiles.add(TileData(symbol, layer, x, y))
                         tileId++
                     }
@@ -138,7 +138,7 @@ object LevelLoader {
             for (x in offset until offset + size) {
                 for (y in offset until offset + size) {
                     if (x in 0 until data.width && y in 0 until data.height) {
-                        val symbol = symbols[tileId % symbols.size]
+                        val symbol = symbols[(tileId / 2) % symbols.size]
                         tiles.add(TileData(symbol, layer, x, y))
                         tileId++
                     }
@@ -163,6 +163,8 @@ object LevelLoader {
         if (totalTiles % 2 != 0) {
             tiles.removeLast()
         }
+
+        tiles.shuffle()
 
         return tiles
     }

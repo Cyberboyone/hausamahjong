@@ -65,26 +65,30 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun showLevelSelectDialog() {
-        val dialog = android.app.Dialog(this)
-        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_level_select)
-        dialog.setCancelable(true)
+        try {
+            val dialog = android.app.Dialog(this)
+            dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+            dialog.setContentView(R.layout.dialog_level_select)
+            dialog.setCancelable(true)
 
-        val rvLevels = dialog.findViewById<RecyclerView>(R.id.rvLevels)
-        val btnClose = dialog.findViewById<Button>(R.id.btnClose)
+            val rvLevels = dialog.findViewById<RecyclerView>(R.id.rvLevels)
+            val btnClose = dialog.findViewById<Button>(R.id.btnClose)
 
-        val adapter = LevelSelectAdapter { levelNumber ->
-            dialog.dismiss()
-            val intent = Intent(this, GameActivity::class.java)
-            intent.putExtra("LEVEL_NUMBER", levelNumber)
-            startActivity(intent)
+            val adapter = LevelSelectAdapter { levelNumber ->
+                dialog.dismiss()
+                val intent = Intent(this, GameActivity::class.java)
+                intent.putExtra("LEVEL_NUMBER", levelNumber)
+                startActivity(intent)
+            }
+
+            rvLevels.layoutManager = GridLayoutManager(this, 4)
+            rvLevels.adapter = adapter
+
+            btnClose.setOnClickListener { dialog.dismiss() }
+            dialog.show()
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Could not load levels", android.widget.Toast.LENGTH_SHORT).show()
         }
-
-        rvLevels.layoutManager = GridLayoutManager(this, 4)
-        rvLevels.adapter = adapter
-
-        btnClose.setOnClickListener { dialog.dismiss() }
-        dialog.show()
     }
 
     private fun showSettingsDialog() {
