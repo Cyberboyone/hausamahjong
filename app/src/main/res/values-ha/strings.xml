@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Hausa Mahjong</string>
+    <string name="game_title">Hausa Mahjong</string>
+    <string name="levelplay_app_id">YOUR_LEVELPLAY_APP_ID</string>
+    <string name="remove_ads_product_id">remove_ads</string>
+
+    <!-- Menu -->
+    <string name="play">Fita</string>
+    <string name="levels">Matakai</string>
+    <string name="settings">Saitunan</string>
+    <string name="language">Harshe</string>
+    <string name="sound">Sauti</string>
+    <string name="remove_ads">Cire Announcement</string>
+    <string name="remove_ads_desc">Biya ɗaya don cire announcement duka</string>
+    <string name="restore_purchases">Dawo Abincin</string>
+    <string name="rate_app">Koya Mu</string>
+    <string name="share_app">Raba</string>
+    <string name="privacy_policy">Siyasar Tsare Sirri</string>
+
+    <!-- Game -->
+    <string name="level">Matsayi</string>
+    <string name="moves">Haukawu</string>
+    <string name="hints">Shawarwari</string>
+    <string name="undo">Dawo</string>
+    <string name="hint">Shawara</string>
+    <string name="pause">Tsaya</string>
+    <string name="resume">Ci Gaba</string>
+    <string name="restart">Fara Daga Baya</string>
+    <string name="menu">Menyu</string>
+    <string name="win">An Gama Matsayi!</string>
+    <string name="lose">Ba A Samu Haukawa Ba</string>
+    <string name="try_again">Sake Gwadawa</string>
+    <string name="next_level">Matsayi Na Gaba</string>
+    <string name="level_select">Zaɓi Matsayi</string>
+    <string name="level_locked">A Rufi</string>
+    <string name="complete">An Gama</string>
+
+    <!-- Ads -->
+    <string name="watch_ad_for_hint">Kallo announcement don shawara?</string>
+    <string name="no_ads_thanks">A\'a, na gode</string>
+    <string name="ad_loading">An karanta announcement\u2026</string>
+    <string name="ad_not_ready">Announcement bai dawo ba. Gwadawa gaba.</string>
+    <string name="reward_claimed">An samu shawara!</string>
+
+    <!-- Proverbs -->
+    <string name="proverb_title">Karin Magana</string>
+    <string name="proverb_meaning">Mana</string>
+    <string name="show_english">Nuna Turanci</string>
+    <string name="hide_english">Fita Turanci</string>
+    <string name="next_proverb">Na Gaba</string>
+
+    <!-- Settings -->
+    <string name="language_english">Turanci</string>
+    <string name="language_hausa">Hausa</string>
+    <string name="sound_on">An Bude</string>
+    <string name="sound_off">A Rufi</string>
+    <string name="purchase_success">An sayar da nasara! Announcement suka cire.</string>
+    <string name="purchase_failed">Sayarwa bai yi nasara ba. Gwadawa gaba.</string>
+    <string name="restore_success">An dawo abincin.</string>
+    <string name="nothing_to_restore">Babu abin da a dawo.</string>
+</resources>

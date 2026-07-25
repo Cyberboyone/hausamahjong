@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/proverb_bg">
+
+    <TextView
+        android:id="@+id/tvProverbTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/proverb_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvProverbHausa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/proverb_text"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.2"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvProverbEnglish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/proverb_english"
+        android:gravity="center"
+        android:fontFamily="sans-serif-light"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvMeaning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:fontFamily="sans-serif-light"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnToggleEnglish"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/show_english"
+        android:textSize="14sp"
+        android:textColor="@color/on_primary"
+        android:backgroundTint="@color/primary_light"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/next_proverb"
+        android:textSize="16sp"
+        android:textColor="@color/on_primary"
+        android:backgroundTint="@color/secondary" />
+
+</LinearLayout>

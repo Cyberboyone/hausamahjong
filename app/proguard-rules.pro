@@ -1,0 +1,5 @@
+-keep class com.nakudin.hausamahjong.game.** { *; }
+-keep class com.nakudin.hausamahjong.data.** { *; }
+-keep class kotlinx.serialization.** { *; }
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt

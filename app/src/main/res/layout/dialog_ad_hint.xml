@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/surface">
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/watch_ad_for_hint"
+        android:textSize="18sp"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnWatch"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/watch_ad"
+        android:textSize="16sp"
+        android:textColor="@color/on_primary"
+        android:backgroundTint="@color/secondary"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnNoThanks"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/no_ads_thanks"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:backgroundTint="@color/button_disabled" />
+
+</LinearLayout>

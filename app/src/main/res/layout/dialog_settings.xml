@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/surface">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/tvLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/language"
+        android:textSize="18sp"
+        android:textColor="@color/text_primary"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
+
+        <Button
+            android:id="@+id/btnEnglish"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:text="@string/language_english"
+            android:textSize="14sp"
+            android:textColor="@color/on_primary"
+            android:backgroundTint="@color/primary"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnHausa"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:text="@string/language_hausa"
+            android:textSize="14sp"
+            android:textColor="@color/on_primary"
+            android:backgroundTint="@color/secondary" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/menu"
+        android:textSize="16sp"
+        android:textColor="@color/on_primary"
+        android:backgroundTint="@color/text_secondary" />
+
+</LinearLayout>

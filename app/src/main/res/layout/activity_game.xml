@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1B5E20">
+
+    <TextView
+        android:id="@+id/tvLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/level"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvSelectedTile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="16sp"
+        android:textColor="#FFD54F"
+        app:layout_constraintTop_toBottomOf="@id/tvLevel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/hudTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#2E7D32"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvMoves"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tvHints"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="3"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFD54F"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="3:00"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFCDD2"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <com.nakudin.hausamahjong.ui.BoardView
+        android:id="@+id/boardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintTop_toBottomOf="@id/hudTop"
+        app:layout_constraintBottom_toTopOf="@id/hudBottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/hudBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#2E7D32"
+        android:elevation="4dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/bg_wooden_button"
+            android:contentDescription="@string/menu"
+            android:src="@android:drawable/ic_menu_revert"
+            android:scaleType="centerInside"
+            android:padding="16dp" />
+
+        <ImageButton
+            android:id="@+id/btnHint"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/bg_wooden_button_large"
+            android:contentDescription="@string/hint"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:scaleType="centerInside"
+            android:padding="18dp" />
+
+        <ImageButton
+            android:id="@+id/btnUndo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/bg_wooden_button"
+            android:contentDescription="@string/undo"
+            android:src="@android:drawable/ic_menu_revert"
+            android:scaleType="centerInside"
+            android:padding="16dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

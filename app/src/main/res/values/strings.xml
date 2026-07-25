@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Hausa Mahjong</string>
+    <string name="game_title">Hausa Mahjong</string>
+    <string name="levelplay_app_id">YOUR_LEVELPLAY_APP_ID</string>
+    <string name="remove_ads_product_id">remove_ads</string>
+
+    <!-- Menu -->
+    <string name="play">Play</string>
+    <string name="levels">Levels</string>
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="sound">Sound</string>
+    <string name="remove_ads">Remove Ads</string>
+    <string name="remove_ads_desc">One-time purchase to remove all ads</string>
+    <string name="restore_purchases">Restore Purchases</string>
+    <string name="rate_app">Rate Us</string>
+    <string name="share_app">Share</string>
+    <string name="privacy_policy">Privacy Policy</string>
+
+    <!-- Game -->
+    <string name="level">Level</string>
+    <string name="moves">Moves</string>
+    <string name="hints">Hints</string>
+    <string name="undo">Undo</string>
+    <string name="hint">Hint</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="restart">Restart</string>
+    <string name="menu">Menu</string>
+    <string name="win">Level Complete!</string>
+    <string name="lose">No More Moves</string>
+    <string name="try_again">Try Again</string>
+    <string name="next_level">Next Level</string>
+    <string name="level_select">Select Level</string>
+    <string name="level_locked">Locked</string>
+    <string name="complete">Complete</string>
+
+    <!-- Ads -->
+    <string name="watch_ad_for_hint">Watch ad for a hint?</string>
+    <string name="no_ads_thanks">No thanks</string>
+    <string name="ad_loading">Loading ad\u2026</string>
+    <string name="ad_not_ready">Ad not ready. Try again shortly.</string>
+    <string name="reward_claimed">Hint earned!</string>
+
+    <!-- Proverbs -->
+    <string name="proverb_title">Hausa Proverb</string>
+    <string name="proverb_meaning">Meaning</string>
+    <string name="show_english">Show English</string>
+    <string name="hide_english">Hide English</string>
+    <string name="next_proverb">Next</string>
+
+    <!-- Settings -->
+    <string name="language_english">English</string>
+    <string name="language_hausa">Hausa</string>
+    <string name="sound_on">On</string>
+    <string name="sound_off">Off</string>
+    <string name="purchase_success">Purchase successful! Ads removed.</string>
+    <string name="purchase_failed">Purchase failed. Please try again.</string>
+    <string name="restore_success">Purchases restored.</string>
+    <string name="nothing_to_restore">Nothing to restore.</string>
+</resources>

@@ -1,0 +1,112 @@
+[
+    {
+        "levelNumber": 1,
+        "layoutType": "pyramid",
+        "width": 7,
+        "height": 7,
+        "layers": 3,
+        "name_ha": "Mataki Na 1",
+        "name_en": "Level 1",
+        "difficulty": 1,
+        "description": "Introduction - simple pyramid"
+    },
+    {
+        "levelNumber": 2,
+        "layoutType": "pyramid",
+        "width": 7,
+        "height": 7,
+        "layers": 3,
+        "name_ha": "Mataki Na 2",
+        "name_en": "Level 2",
+        "difficulty": 1,
+        "description": "Basic pyramid with more tiles"
+    },
+    {
+        "levelNumber": 3,
+        "layoutType": "pyramid",
+        "width": 9,
+        "height": 9,
+        "layers": 4,
+        "name_ha": "Mataki Na 3",
+        "name_en": "Level 3",
+        "difficulty": 2,
+        "description": "Larger pyramid"
+    },
+    {
+        "levelNumber": 4,
+        "layoutType": "diamond",
+        "width": 9,
+        "height": 9,
+        "layers": 3,
+        "name_ha": "Mataki Na 4",
+        "name_en": "Level 4",
+        "difficulty": 2,
+        "description": "Diamond formation"
+    },
+    {
+        "levelNumber": 5,
+        "layoutType": "diamond",
+        "width": 9,
+        "height": 9,
+        "layers": 4,
+        "name_ha": "Mataki Na 5",
+        "name_en": "Level 5",
+        "difficulty": 3,
+        "description": "Complex diamond"
+    },
+    {
+        "levelNumber": 6,
+        "layoutType": "pyramid",
+        "width": 11,
+        "height": 11,
+        "layers": 4,
+        "name_ha": "Mataki Na 6",
+        "name_en": "Level 6",
+        "difficulty": 3,
+        "description": "Large pyramid challenge"
+    },
+    {
+        "levelNumber": 7,
+        "layoutType": "diamond",
+        "width": 11,
+        "height": 11,
+        "layers": 5,
+        "name_ha": "Mataki Na 7",
+        "name_en": "Level 7",
+        "difficulty": 4,
+        "description": "Advanced diamond"
+    },
+    {
+        "levelNumber": 8,
+        "layoutType": "pyramid",
+        "width": 13,
+        "height": 13,
+        "layers": 5,
+        "name_ha": "Mataki Na 8",
+        "name_en": "Level 8",
+        "difficulty": 4,
+        "description": "Expert pyramid"
+    },
+    {
+        "levelNumber": 9,
+        "layoutType": "mixed",
+        "width": 13,
+        "height": 13,
+        "layers": 5,
+        "name_ha": "Mataki Na 9",
+        "name_en": "Level 9",
+        "difficulty": 5,
+        "description": "Mixed formation"
+    },
+    {
+        "levelNumber": 10,
+        "layoutType": "pyramid",
+        "width": 15,
+        "height": 15,
+        "layers": 6,
+        "name_ha": "Mataki Na 10",
+        "name_en": "Level 10",
+        "difficulty": 5,
+        "description": "Master challenge"
+    }
+]

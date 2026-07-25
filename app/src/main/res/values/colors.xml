@@ -1,0 +1,41 @@
+<resources>
+    <color name="primary">#8B4513</color>
+    <color name="primary_dark">#5D2E0C</color>
+    <color name="primary_light">#D2691E</color>
+    <color name="secondary">#FF8C00</color>
+    <color name="secondary_dark">#CC7700</color>
+    <color name="background">#FFF8F0</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F5F0EB</color>
+    <color name="error">#C62828</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="on_background">#1A1A1A</color>
+    <color name="on_surface">#1A1A1A</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Tile colors -->
+    <color name="tile_bg_default">#F5F0EB</color>
+    <color name="tile_bg_selected">#FFF3E0</color>
+    <color name="tile_bg_matched">#E8F5E9</color>
+    <color name="tile_bg_blocked">#EFEBE9</color>
+    <color name="tile_border">#8D6E63</color>
+    <color name="tile_border_selected">#E65100</color>
+    <color name="tile_shadow">#3E2723</color>
+
+    <!-- UI -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#4E4E4E</color>
+    <color name="divider">#D7CCC8</color>
+    <color name="button_primary">#8B4513</color>
+    <color name="button_secondary">#FF8C00</color>
+    <color name="button_disabled">#BCAAA4</color>
+
+    <!-- Proverb dialog -->
+    <color name="proverb_bg">#FFFDE7</color>
+    <color name="proverb_text">#3E2723</color>
+    <color name="proverb_english">#5D4037</color>
+
+    <!-- Ads -->
+    <color name="ad_overlay">#80000000</color>
+</resources>
