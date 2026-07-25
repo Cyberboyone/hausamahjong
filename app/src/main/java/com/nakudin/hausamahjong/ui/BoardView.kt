@@ -140,6 +140,8 @@ class BoardView @JvmOverloads constructor(
         super.onDraw(canvas)
         val board = board ?: return
 
+        calculateDimensions()
+
         for (layer in 0 until board.maxLayers) {
             for (y in 0 until board.height) {
                 for (x in 0 until board.width) {
