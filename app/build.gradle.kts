@@ -78,7 +78,10 @@ dependencies {
     implementation("com.android.billingclient:billing-ktx:7.0.0")
 
     // Unity LevelPlay Ads (placeholder version - update from Unity dashboard)
-    implementation("com.unity3d.ads:unity-ads:4.11.0")
+    implementation("com.unity3d.ads:unity-ads:4.11.0") {
+        exclude(group = "io.insert-koin", module = "koin-bom")
+        exclude(group = "io.insert-koin", module = "koin-annotations-bom")
+    }
 
     // Testing
     testImplementation("junit:junit:4.13.2")
