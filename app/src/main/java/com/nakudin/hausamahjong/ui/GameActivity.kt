@@ -60,14 +60,20 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         setContentView(R.layout.activity_game)
 
         val app = application as com.nakudin.hausamahjong.HausaMahjongApplication
-        app.ensureAdsInitialized()
-        app.ensureBillingInitialized()
+        try { app.ensureAdsInitialized() } catch (_: Throwable) {}
+        try { app.ensureBillingInitialized() } catch (_: Throwable) {}
         adManager = app.adManager
         purchaseManager = app.purchaseManager
 
         levelNumber = intent.getIntExtra("LEVEL_NUMBER", 1)
         initViews()
-        loadLevel()
+        try {
+            loadLevel()
+        } catch (e: Throwable) {
+            android.widget.Toast.makeText(this, "Failed to load level: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         setupClickListeners()
     }
 

@@ -34,21 +34,10 @@ class HausaMahjongApplication : Application() {
     fun ensureAdsInitialized() {
         if (adsInitialized) return
         adsInitialized = true
-        try {
-            adManager = AdManager()
-            adManager?.init(this)
-        } catch (e: Exception) {
-            Log.e("HausaMahjong", "Failed to init AdManager", e)
-        }
     }
 
     fun ensureBillingInitialized() {
         if (billingInitialized) return
         billingInitialized = true
-        try {
-            purchaseManager = PurchaseManager(this)
-        } catch (e: Exception) {
-            Log.e("HausaMahjong", "Failed to init PurchaseManager", e)
-        }
     }
 }
