@@ -1,17 +1,17 @@
 package com.nakudin.hausamahjong.ads
 
+import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.SkuDetails
-import com.android.billingclient.api.SkuDetailsParams
-import com.android.billingclient.api.SkuDetailsResponseListener
+import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryPurchasesParams
 import com.nakudin.hausamahjong.R
 
 class PurchaseManager(
@@ -19,7 +19,7 @@ class PurchaseManager(
 ) : PurchasesUpdatedListener {
 
     private var billingClient: BillingClient
-    private var skuDetails: SkuDetails? = null
+    private var productDetails: ProductDetails? = null
     private var isRemoveAdsPurchased = false
 
     init {
@@ -41,40 +41,46 @@ class PurchaseManager(
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    querySkuDetails()
+                    queryProductDetails()
                     checkPurchases()
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                // Retry connection
                 startConnection()
             }
         })
     }
 
-    private fun querySkuDetails() {
-        val skuList = listOf(context.getString(R.string.remove_ads_product_id))
-        val params = SkuDetailsParams.newBuilder()
-            .setSkusList(skuList)
-            .setType(BillingClient.SkuType.INAPP)
+    private fun queryProductDetails() {
+        val productId = context.getString(R.string.remove_ads_product_id)
+        val productList = listOf(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(productId)
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build()
+        )
+        val params = QueryProductDetailsParams.newBuilder()
+            .setProductList(productList)
             .build()
 
-        billingClient.querySkuDetailsAsync(params, object : SkuDetailsResponseListener {
-            override fun onSkuDetailsResponse(result: BillingResult, skuDetailsList: List<SkuDetails>?) {
-                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    skuDetails = skuDetailsList?.firstOrNull()
-                }
+        billingClient.queryProductDetailsAsync(params) { result, productDetailsList ->
+            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                productDetails = productDetailsList?.firstOrNull()
             }
-        })
+        }
     }
 
     private fun checkPurchases() {
-        billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP) { result, purchases ->
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+
+        billingClient.queryPurchasesAsync(params) { result, purchases ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 for (purchase in purchases) {
                     if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                        if (purchase.sku == context.getString(R.string.remove_ads_product_id)) {
+                        if (context.getString(R.string.remove_ads_product_id) in purchase.products) {
                             if (!purchase.isAcknowledged) {
                                 acknowledgePurchase(purchase)
                             } else {
@@ -88,10 +94,15 @@ class PurchaseManager(
         }
     }
 
-    fun launchRemoveAdsPurchase(activity: android.app.Activity) {
-        val details = skuDetails ?: return
+    fun launchRemoveAdsPurchase(activity: Activity) {
+        val details = productDetails ?: return
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(details)
+                .build()
+        )
         val flowParams = BillingFlowParams.newBuilder()
-            .setSkuDetailsList(listOf(details))
+            .setProductDetailsParamsList(productDetailsParamsList)
             .build()
         billingClient.launchBillingFlow(activity, flowParams)
     }
@@ -100,7 +111,7 @@ class PurchaseManager(
         if (result.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                    if (purchase.sku == context.getString(R.string.remove_ads_product_id)) {
+                    if (context.getString(R.string.remove_ads_product_id) in purchase.products) {
                         acknowledgePurchase(purchase)
                     }
                 }
@@ -129,12 +140,16 @@ class PurchaseManager(
     fun isRemoveAdsPurchased(): Boolean = isRemoveAdsPurchased
 
     fun restorePurchases(callback: (Boolean) -> Unit) {
-        billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP) { result, purchases ->
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+
+        billingClient.queryPurchasesAsync(params) { result, purchases ->
             var found = false
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 for (purchase in purchases) {
                     if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                        purchase.sku == context.getString(R.string.remove_ads_product_id)) {
+                        context.getString(R.string.remove_ads_product_id) in purchase.products) {
                         isRemoveAdsPurchased = true
                         savePurchaseState()
                         found = true

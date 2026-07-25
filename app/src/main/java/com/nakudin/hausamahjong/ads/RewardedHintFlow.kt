@@ -7,11 +7,10 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.SkuDetails
-import com.android.billingclient.api.SkuDetailsParams
-import com.android.billingclient.api.SkuDetailsResponseListener
+import com.android.billingclient.api.QueryProductDetailsParams
 import com.nakudin.hausamahjong.R
 
 class RewardedHintFlow(
@@ -19,7 +18,7 @@ class RewardedHintFlow(
 ) : PurchasesUpdatedListener {
 
     private var billingClient: BillingClient? = null
-    private var skuDetails: SkuDetails? = null
+    private var productDetails: ProductDetails? = null
     private var appContext: Context? = null
 
     fun init(context: Context) {
@@ -36,7 +35,7 @@ class RewardedHintFlow(
         billingClient?.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    querySkuDetails()
+                    queryProductDetails()
                 }
             }
 
@@ -44,26 +43,34 @@ class RewardedHintFlow(
         })
     }
 
-    private fun querySkuDetails() {
-        val skuList = listOf(appContext!!.getString(R.string.remove_ads_product_id))
-        val params = SkuDetailsParams.newBuilder()
-            .setSkusList(skuList)
-            .setType(BillingClient.SkuType.INAPP)
+    private fun queryProductDetails() {
+        val productId = appContext!!.getString(R.string.remove_ads_product_id)
+        val productList = listOf(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(productId)
+                .setProductType(BillingClient.ProductType.INAPP)
+                .build()
+        )
+        val params = QueryProductDetailsParams.newBuilder()
+            .setProductList(productList)
             .build()
 
-        billingClient?.querySkuDetailsAsync(params, object : SkuDetailsResponseListener {
-            override fun onSkuDetailsResponse(result: BillingResult, skuDetailsList: List<SkuDetails>?) {
-                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    skuDetails = skuDetailsList?.firstOrNull()
-                }
+        billingClient?.queryProductDetailsAsync(params) { result, productDetailsList ->
+            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                productDetails = productDetailsList?.firstOrNull()
             }
-        })
+        }
     }
 
     fun launchRemoveAdsPurchase(activity: Activity) {
-        val details = skuDetails ?: return
+        val details = productDetails ?: return
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(details)
+                .build()
+        )
         val flowParams = BillingFlowParams.newBuilder()
-            .setSkuDetailsList(listOf(details))
+            .setProductDetailsParamsList(productDetailsParamsList)
             .build()
         billingClient?.launchBillingFlow(activity, flowParams)
     }
@@ -91,5 +98,4 @@ class RewardedHintFlow(
     }
 
     fun isRemoveAdsPurchased(): Boolean = adManager.isRemoveAdsPurchased()
-
 }

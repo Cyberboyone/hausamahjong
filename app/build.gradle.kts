@@ -44,7 +44,7 @@ android {
         buildConfig = true
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/*.kotlin_module"
         }

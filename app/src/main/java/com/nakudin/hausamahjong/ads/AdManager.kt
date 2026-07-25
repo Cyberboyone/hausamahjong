@@ -2,10 +2,11 @@ package com.nakudin.hausamahjong.ads
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import com.unity3d.ads.IUnityAdsLoadListener
+import com.unity3d.ads.IUnityAdsShowListener
 import com.unity3d.ads.UnityAds
 import com.unity3d.ads.UnityAdsLoadOptions
+import com.unity3d.ads.UnityAdsShowOptions
 
 class AdManager {
     private var interstitialAdId = "interstitial"
@@ -14,6 +15,9 @@ class AdManager {
     private var removeAdsPurchased = false
     private var levelCompletions = 0
     private val interstitialFrequencyCap = 4
+
+    private var interstitialLoaded = false
+    private var rewardedLoaded = false
 
     fun init(context: Context) {
         val prefs = context.getSharedPreferences("ad_prefs", Context.MODE_PRIVATE)
@@ -34,50 +38,66 @@ class AdManager {
 
     private fun loadInterstitialAd(context: Context) {
         if (!isInitialized || removeAdsPurchased) return
+        interstitialLoaded = false
         val options = UnityAdsLoadOptions()
         UnityAds.load(interstitialAdId, options, object : IUnityAdsLoadListener {
-            override fun onUnityAdsAdLoaded(placementId: String) {}
-            override fun onUnityAdsFailedToLoad(placementId: String, error: UnityAds.UnityAdsLoadError, message: String) {}
+            override fun onUnityAdsAdLoaded(placementId: String) {
+                interstitialLoaded = true
+            }
+            override fun onUnityAdsFailedToLoad(placementId: String, error: UnityAds.UnityAdsLoadError, message: String) {
+                interstitialLoaded = false
+            }
         })
     }
 
     private fun loadRewardedAd(context: Context) {
         if (!isInitialized || removeAdsPurchased) return
+        rewardedLoaded = false
         val options = UnityAdsLoadOptions()
         UnityAds.load(rewardedAdId, options, object : IUnityAdsLoadListener {
-            override fun onUnityAdsAdLoaded(placementId: String) {}
-            override fun onUnityAdsFailedToLoad(placementId: String, error: UnityAds.UnityAdsLoadError, message: String) {}
+            override fun onUnityAdsAdLoaded(placementId: String) {
+                rewardedLoaded = true
+            }
+            override fun onUnityAdsFailedToLoad(placementId: String, error: UnityAds.UnityAdsLoadError, message: String) {
+                rewardedLoaded = false
+            }
         })
     }
 
     fun isInterstitialAdReady(): Boolean {
-        return isInitialized && !removeAdsPurchased && UnityAds.isReady(interstitialAdId)
+        return isInitialized && !removeAdsPurchased && interstitialLoaded
     }
 
     fun isRewardedAdReady(): Boolean {
-        return isInitialized && !removeAdsPurchased && UnityAds.isReady(rewardedAdId)
+        return isInitialized && !removeAdsPurchased && rewardedLoaded
     }
 
     fun showInterstitialAd(activity: Activity) {
         if (!isInterstitialAdReady()) return
-        UnityAds.show(activity, interstitialAdId)
-        loadInterstitialAd(activity)
+        UnityAds.show(activity, interstitialAdId, UnityAdsShowOptions(), object : IUnityAdsShowListener {
+            override fun onUnityAdsShowComplete(placementId: String, state: UnityAds.UnityAdsShowCompletionState) {
+                loadInterstitialAd(activity)
+            }
+            override fun onUnityAdsShowFailure(placementId: String, error: UnityAds.UnityAdsShowError, message: String) {
+                loadInterstitialAd(activity)
+            }
+            override fun onUnityAdsShowStart(placementId: String) {}
+            override fun onUnityAdsShowClick(placementId: String) {}
+        })
     }
 
     fun showRewardedAd(activity: Activity, onComplete: () -> Unit) {
         if (!isRewardedAdReady()) return
-        UnityAds.show(activity, rewardedAdId, object : com.unity3d.ads.UnityAds.IUnityAdsShowListener {
+        UnityAds.show(activity, rewardedAdId, UnityAdsShowOptions(), object : IUnityAdsShowListener {
             override fun onUnityAdsShowComplete(placementId: String, state: UnityAds.UnityAdsShowCompletionState) {
                 if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
                     onComplete()
                 }
                 loadRewardedAd(activity)
             }
-
             override fun onUnityAdsShowFailure(placementId: String, error: UnityAds.UnityAdsShowError, message: String) {
                 loadRewardedAd(activity)
             }
-
             override fun onUnityAdsShowStart(placementId: String) {}
             override fun onUnityAdsShowClick(placementId: String) {}
         })
