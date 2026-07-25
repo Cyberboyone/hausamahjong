@@ -91,7 +91,7 @@ object MatchEngine {
     private fun boardToKey(board: Board): String {
         return board.tiles
             .filter { !it.isMatched }
-            .sortedBy { (it.x, it.y, it.layer) }
+            .sortedWith(compareBy({ it.x }, { it.y }, { it.layer }))
             .joinToString(",") { "${it.x}:${it.y}:${it.layer}:${it.symbolId}" }
     }
 
