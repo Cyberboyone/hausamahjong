@@ -21,7 +21,7 @@ class SoundManager(private val context: Context) {
 
     fun init() {
         try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_GAME, 80)
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
         } catch (_: Throwable) {}
 
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -220,10 +220,11 @@ class BoardView @JvmOverloads constructor(
             val (a, b) = matchAnimTiles!!
             if (tile.id == a.id || tile.id == b.id) {
                 val scale = 1f + matchAnimProgress * 0.15f
-                val pivotX = rect.centerX()
-                val pivotY = rect.centerY()
-                canvas.scale(scale, scale, pivotX, pivotY)
-                canvas.alpha = 1f - matchAnimProgress
+                canvas.scale(scale, scale, rect.centerX(), rect.centerY())
+                tileBgPaint.alpha = ((1f - matchAnimProgress) * 255).toInt().coerceIn(0, 255)
+                tileBorderPaint.alpha = tileBgPaint.alpha
+                iconPaint.alpha = tileBgPaint.alpha
+                textPaint.alpha = tileBgPaint.alpha
             }
         }
 
@@ -272,6 +273,11 @@ class BoardView @JvmOverloads constructor(
         }
 
         drawTileIcon(canvas, tile, rect)
+
+        tileBgPaint.alpha = 255
+        tileBorderPaint.alpha = 255
+        iconPaint.alpha = 255
+        textPaint.alpha = 255
 
         canvas.restore()
     }
