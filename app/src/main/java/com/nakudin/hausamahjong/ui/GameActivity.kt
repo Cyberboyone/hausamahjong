@@ -15,8 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.nakudin.hausamahjong.R
 import com.nakudin.hausamahjong.ads.AdManager
 import com.nakudin.hausamahjong.ads.PurchaseManager
+import com.nakudin.hausamahjong.audio.SoundManager
 import com.nakudin.hausamahjong.data.LevelRepository
-import com.nakudin.hausamahjong.data.ProverbRepository
 import com.nakudin.hausamahjong.game.Board
 import com.nakudin.hausamahjong.game.GameState
 import com.nakudin.hausamahjong.game.LevelLoader
@@ -43,6 +43,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
 
     private var adManager: AdManager? = null
     private var purchaseManager: PurchaseManager? = null
+    private var soundManager: SoundManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +66,11 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         adManager = app.adManager
         purchaseManager = app.purchaseManager
 
+        soundManager = SoundManager(this).apply { init() }
+
         levelNumber = intent.getIntExtra("LEVEL_NUMBER", 1)
         initViews()
+        boardView.soundManager = soundManager
         try {
             loadLevel()
         } catch (e: Throwable) {
@@ -110,9 +114,18 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
     }
 
     private fun setupClickListeners() {
-        btnHint.setOnClickListener { showHintDialog() }
-        btnUndo.setOnClickListener { performUndo() }
-        btnMenu.setOnClickListener { showPauseDialog() }
+        btnHint.setOnClickListener {
+            soundManager?.button()
+            showHintDialog()
+        }
+        btnUndo.setOnClickListener {
+            soundManager?.button()
+            performUndo()
+        }
+        btnMenu.setOnClickListener {
+            soundManager?.button()
+            showPauseDialog()
+        }
     }
 
     private fun startTimer() {
@@ -148,11 +161,13 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
             updateUI()
             tvSelectedTile.text = ""
 
+            soundManager?.match()
             boardView.animateMatch(tileA, tileB) {
                 boardView.setBoard(board!!)
                 checkGameState()
             }
         } else {
+            soundManager?.mismatch()
             boardView.animateWrongMatch(tileA, tileB) {
                 boardView.clearSelection()
             }
@@ -163,14 +178,17 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         if (board!!.isCleared()) {
             timer?.cancel()
             gameState?.isComplete = true
+            soundManager?.win()
             showWinDialog()
         } else if (MatchEngine.getFreeTiles(board!!).isEmpty()) {
             timer?.cancel()
             gameState?.isFailed = true
+            soundManager?.lose()
             showLoseDialog()
         } else if (MatchEngine.findMatchingPair(board!!) == null) {
             timer?.cancel()
             gameState?.isFailed = true
+            soundManager?.lose()
             showLoseDialog()
         }
     }
@@ -181,6 +199,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
             if (undone != null) {
                 updateUI()
                 boardView.setBoard(board!!)
+                soundManager?.tap()
             }
         }
     }
@@ -242,16 +261,19 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         val btnMenu = dialog.findViewById<Button>(R.id.btnMenu)
 
         btnResume.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             startTimer()
         }
 
         btnRestart.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             restartLevel()
         }
 
         btnMenu.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             finish()
         }
@@ -280,12 +302,14 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         tvTime.text = String.format("%d:%02d", seconds / 60, seconds % 60)
 
         btnNext.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             levelNumber++
             loadLevel()
         }
 
         btnMenu.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             finish()
         }
@@ -311,11 +335,13 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
         tvTitle.text = getString(R.string.lose)
 
         btnTryAgain.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             restartLevel()
         }
 
         btnMenu.setOnClickListener {
+            soundManager?.button()
             dialog.dismiss()
             finish()
         }
@@ -331,5 +357,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener {
     override fun onDestroy() {
         super.onDestroy()
         timer?.cancel()
+        soundManager?.release()
     }
 }
