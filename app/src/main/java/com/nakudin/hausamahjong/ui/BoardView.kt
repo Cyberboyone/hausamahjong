@@ -3,11 +3,14 @@ package com.nakudin.hausamahjong.ui
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import com.nakudin.hausamahjong.R
 import com.nakudin.hausamahjong.audio.SoundManager
 import com.nakudin.hausamahjong.game.Board
 import com.nakudin.hausamahjong.game.MatchEngine
@@ -100,6 +103,40 @@ class BoardView @JvmOverloads constructor(
     }
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val tileBitmapCache = HashMap<String, Bitmap?>()
+    private var tileBitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+    private fun getTileBitmap(symbolId: String): Bitmap? {
+        tileBitmapCache[symbolId]?.let { return it }
+
+        val resName = "tile_$symbolId"
+        val resId = context.resources.getIdentifier(resName, "drawable", context.packageName)
+        if (resId == 0) {
+            tileBitmapCache[symbolId] = null
+            return null
+        }
+
+        val drawable: Drawable? = try {
+            context.getDrawable(resId)
+        } catch (e: Exception) {
+            null
+        }
+
+        val bitmap = when (drawable) {
+            is BitmapDrawable -> drawable.bitmap
+            else -> {
+                val bmp = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
+                val c = Canvas(bmp)
+                drawable?.setBounds(0, 0, 256, 256)
+                drawable?.draw(c)
+                bmp
+            }
+        }
+
+        tileBitmapCache[symbolId] = bitmap
+        return bitmap
+    }
 
     fun setBoard(board: Board) {
         this.board = board
@@ -207,6 +244,17 @@ class BoardView @JvmOverloads constructor(
         canvas.drawRoundRect(innerRect, 12f, 12f, bgPaint)
     }
 
+    private val woodenPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val woodBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        color = Color.parseColor("#A1887F")
+    }
+    private val woodEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = Color.parseColor("#BCAAA4")
+    }
+
     private fun drawTile(canvas: Canvas, tile: Tile, layer: Int) {
         if (tile.isMatched) return
 
@@ -225,6 +273,8 @@ class BoardView @JvmOverloads constructor(
                 tileBorderPaint.alpha = tileBgPaint.alpha
                 iconPaint.alpha = tileBgPaint.alpha
                 textPaint.alpha = tileBgPaint.alpha
+                woodBorderPaint.alpha = tileBgPaint.alpha
+                woodEdgePaint.alpha = tileBgPaint.alpha
             }
         }
 
@@ -236,23 +286,41 @@ class BoardView @JvmOverloads constructor(
         val isHighlighted = tile in highlightedTiles
 
         if (isFree) {
-            tileBgPaint.shader = LinearGradient(
+            woodenPaint.shader = LinearGradient(
                 left, top, left, top + tileHeight,
-                Color.parseColor("#FAFAFA"),
-                Color.parseColor("#F5F5F5"),
+                Color.parseColor("#FFF8E1"),
+                Color.parseColor("#F5E6D3"),
                 Shader.TileMode.CLAMP
             )
         } else {
-            tileBgPaint.shader = null
-            tileBgPaint.color = Color.parseColor("#E0E0E0")
+            woodenPaint.shader = null
+            woodenPaint.color = Color.parseColor("#D7CCC8")
         }
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBgPaint)
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, woodenPaint)
 
-        tileEdgePaint.color = if (isFree) Color.parseColor("#E8E8E8") else Color.parseColor("#D0D0D0")
-        val edgeRect = RectF(left, top + tileHeight * 0.85f, left + tileWidth, top + tileHeight + 2f)
-        canvas.drawRoundRect(edgeRect, cornerRadius, cornerRadius, tileEdgePaint)
+        woodEdgePaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
+        val edgeRect = RectF(left, top + tileHeight - 4f, left + tileWidth, top + tileHeight + 3f)
+        canvas.drawRoundRect(edgeRect, cornerRadius, cornerRadius, woodEdgePaint)
 
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBorderPaint)
+        woodBorderPaint.color = if (isFree) Color.parseColor("#A1887F") else Color.parseColor("#8D6E63")
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, woodBorderPaint)
+
+        if (isFree && getTileBitmap(tile.symbolId) == null) {
+            val innerRect = RectF(
+                left + tileWidth * 0.06f,
+                top + tileHeight * 0.06f,
+                left + tileWidth - tileWidth * 0.06f,
+                top + tileHeight - tileHeight * 0.12f
+            )
+            tileBgPaint.shader = LinearGradient(
+                innerRect.left, innerRect.top, innerRect.right, innerRect.bottom,
+                Color.parseColor("#FFECB3"),
+                Color.parseColor("#FFE0B2"),
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawRoundRect(innerRect, cornerRadius * 0.6f, cornerRadius * 0.6f, tileBgPaint)
+            tileBgPaint.shader = null
+        }
 
         if (isHighlighted) {
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileHighlightBorder)
@@ -278,6 +346,8 @@ class BoardView @JvmOverloads constructor(
         tileBorderPaint.alpha = 255
         iconPaint.alpha = 255
         textPaint.alpha = 255
+        woodBorderPaint.alpha = 255
+        woodEdgePaint.alpha = 255
 
         canvas.restore()
     }
@@ -285,9 +355,31 @@ class BoardView @JvmOverloads constructor(
     private fun drawTileIcon(canvas: Canvas, tile: Tile, rect: RectF) {
         val cx = rect.centerX()
         val cy = rect.centerY() - tileHeight * 0.04f
-        val iconSize = tileWidth * 0.55f
         val symbol = tile.symbolId
 
+        val bitmap = getTileBitmap(symbol)
+        if (bitmap != null) {
+            val padding = tileWidth * 0.08f
+            val imgSize = tileWidth - padding * 2
+            val imgTop = cy - imgSize * 0.45f
+            val imgRect = RectF(cx - imgSize / 2, imgTop, cx + imgSize / 2, imgTop + imgSize)
+
+            val savedAlpha = tileBitmapPaint.alpha
+            tileBitmapPaint.alpha = iconPaint.alpha
+            canvas.drawBitmap(bitmap, null, imgRect, tileBitmapPaint)
+            tileBitmapPaint.alpha = savedAlpha
+
+            textPaint.textSize = tileWidth * 0.1f
+            textPaint.color = Color.parseColor("#5D4037")
+            textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
+            val label = symbol.replace("_", " ")
+            if (label.length > 12) textPaint.textSize = tileWidth * 0.08f
+            canvas.drawText(label, cx, rect.bottom - tileHeight * 0.06f, textPaint)
+            textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+            return
+        }
+
+        val iconSize = tileWidth * 0.55f
         iconPaint.color = getCategoryColor(symbol)
 
         when {
