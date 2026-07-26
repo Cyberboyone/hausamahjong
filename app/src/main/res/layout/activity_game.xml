@@ -8,9 +8,7 @@
     <com.nakudin.hausamahjong.ui.BoardView
         android:id="@+id/boardView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="72dp"
-        android:layout_marginBottom="80dp" />
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/hudTop"
@@ -19,8 +17,8 @@
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:background="#1B5E20"
         android:elevation="8dp"
         android:gravity="center_vertical">
@@ -82,36 +80,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/hints"
                 android:textSize="11sp"
-                android:textColor="#A5D6A7"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3:00"
-                android:textSize="14sp"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/pause"
-                android:textSize="11sp"
                 android:textColor="#A5D6A7" />
         </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvSelectedTile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="88dp"
-        android:text=""
-        android:textSize="13sp"
-        android:textColor="#FFD54F"
-        android:alpha="0.9" />
 
     <LinearLayout
         android:id="@+id/hudBottom"
@@ -125,13 +96,13 @@
         android:gravity="center">
 
         <ImageButton
-            android:id="@+id/btnUndo"
+            android:id="@+id/btnSettings"
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:layout_margin="8dp"
             android:background="@drawable/bg_wooden_button"
-            android:contentDescription="@string/undo"
-            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="@string/settings"
+            android:src="@android:drawable/ic_menu_manage"
             android:scaleType="centerInside"
             android:padding="14dp"
             app:tint="#FFFFFF" />
@@ -147,6 +118,18 @@
             android:scaleType="centerInside"
             android:padding="16dp"
             app:tint="#FFD54F" />
+
+        <ImageButton
+            android:id="@+id/btnUndo"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_wooden_button"
+            android:contentDescription="@string/undo"
+            android:src="@android:drawable/ic_menu_revert"
+            android:scaleType="centerInside"
+            android:padding="14dp"
+            app:tint="#FFFFFF" />
     </LinearLayout>
 
 </FrameLayout>

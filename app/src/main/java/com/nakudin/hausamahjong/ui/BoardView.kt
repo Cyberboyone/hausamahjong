@@ -1,5 +1,7 @@
 package com.nakudin.hausamahjong.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -10,11 +12,13 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import com.nakudin.hausamahjong.R
 import com.nakudin.hausamahjong.audio.SoundManager
 import com.nakudin.hausamahjong.game.Board
 import com.nakudin.hausamahjong.game.MatchEngine
 import com.nakudin.hausamahjong.game.Tile
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
 
 class BoardView @JvmOverloads constructor(
     context: Context,
@@ -24,16 +28,17 @@ class BoardView @JvmOverloads constructor(
 
     interface OnTileClickListener {
         fun onTileClicked(tile: Tile)
-        fun onMatchAttempt(tileA: Tile, tileB: Tile)
+        fun onSlotTileClicked(tile: Tile)
     }
 
     var soundManager: SoundManager? = null
 
     private var board: Board? = null
     private var listener: OnTileClickListener? = null
-    private var selectedTile: Tile? = null
-    private var highlightedTiles: List<Tile> = emptyList()
     private var freeTiles: List<Tile> = emptyList()
+
+    private val slotTiles = mutableListOf<Tile>()
+    private val maxSlotSize = 7
 
     private var tileWidth = 0f
     private var tileHeight = 0f
@@ -43,10 +48,64 @@ class BoardView @JvmOverloads constructor(
     private var cornerRadius = 0f
     private var boardLeft = 0f
     private var boardTop = 0f
-    private var boardScale = 1f
+    private var slotRect = RectF()
+    private var slotY = 0f
 
-    private var matchAnimTiles: Pair<Tile, Tile>? = null
-    private var matchAnimProgress = 0f
+    private var selectedSlotTile: Tile? = null
+
+    private var animatingTile: AnimatingTile? = null
+    private var breakingTiles: Pair<Tile, Tile>? = null
+    private var breakAnimProgress = 0f
+
+    private val particles = mutableListOf<Particle>()
+
+    private val tileBitmapCache = HashMap<String, Bitmap?>()
+
+    private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val tileBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val tileEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val tileBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 1.5f
+        color = Color.parseColor("#A1887F")
+    }
+    private val tileSelectedBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+        color = Color.parseColor("#FF6F00")
+    }
+    private val tileHighlightBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.5f
+        color = Color.parseColor("#FFEB3B")
+    }
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#30000000")
+        style = Paint.Style.FILL
+    }
+    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textAlign = Paint.Align.CENTER
+    }
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+    }
+    private val slotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val slotBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+        color = Color.parseColor("#6D4C41")
+    }
+    private val slotTilePaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+    private val tileBackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val tileBackBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        color = Color.parseColor("#8D6E63")
+    }
+
     private var selectedPulse = 0f
     private val pulseAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
         duration = 800
@@ -55,93 +114,19 @@ class BoardView @JvmOverloads constructor(
         addUpdateListener { selectedPulse = it.animatedValue as Float; invalidate() }
     }
 
-    private val tileBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
-        style = Paint.Style.FILL
-    }
-
-    private val tileEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-    }
-
-    private val tileBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = 1.5f
-        color = Color.parseColor("#B0BEC5")
-    }
-
-    private val tileSelectedBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = 3f
-        color = Color.parseColor("#FF6F00")
-    }
-
-    private val tileHighlightBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = 2.5f
-        color = Color.parseColor("#FFEB3B")
-    }
-
-    private val tileBlockedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#ECEFF1")
-        style = Paint.Style.FILL
-    }
-
-    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#20000000")
-        style = Paint.Style.FILL
-    }
-
-    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        textAlign = Paint.Align.CENTER
-    }
-
-    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.CENTER
-        typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-    }
-
-    private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private val tileBitmapCache = HashMap<String, Bitmap?>()
-    private var tileBitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-
-    private fun getTileBitmap(symbolId: String): Bitmap? {
-        tileBitmapCache[symbolId]?.let { return it }
-
-        val resName = "tile_$symbolId"
-        val resId = context.resources.getIdentifier(resName, "drawable", context.packageName)
-        if (resId == 0) {
-            tileBitmapCache[symbolId] = null
-            return null
-        }
-
-        val drawable: Drawable? = try {
-            context.getDrawable(resId)
-        } catch (e: Exception) {
-            null
-        }
-
-        val bitmap = when (drawable) {
-            is BitmapDrawable -> drawable.bitmap
-            else -> {
-                val bmp = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
-                val c = Canvas(bmp)
-                drawable?.setBounds(0, 0, 256, 256)
-                drawable?.draw(c)
-                bmp
-            }
-        }
-
-        tileBitmapCache[symbolId] = bitmap
-        return bitmap
+    private var slotPulse = 0f
+    private val slotPulseAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+        duration = 1000
+        repeatCount = ValueAnimator.INFINITE
+        repeatMode = ValueAnimator.REVERSE
+        addUpdateListener { slotPulse = it.animatedValue as Float; invalidate() }
     }
 
     fun setBoard(board: Board) {
         this.board = board
         this.freeTiles = MatchEngine.getFreeTiles(board)
-        selectedTile = null
+        slotTiles.clear()
+        selectedSlotTile = null
         calculateDimensions()
         invalidate()
     }
@@ -151,13 +136,41 @@ class BoardView @JvmOverloads constructor(
     }
 
     fun clearSelection() {
-        selectedTile = null
-        highlightedTiles = emptyList()
+        selectedSlotTile = null
         invalidate()
     }
 
     fun highlightTiles(tiles: List<Tile>) {
-        highlightedTiles = tiles
+        invalidate()
+    }
+
+    fun getSlotTiles(): List<Tile> = slotTiles.toList()
+
+    fun addToSlot(tile: Tile): Boolean {
+        if (slotTiles.size >= maxSlotSize) return false
+        if (slotTiles.any { it.id == tile.id }) return false
+        slotTiles.add(tile)
+        selectedSlotTile = tile
+        invalidate()
+        return true
+    }
+
+    fun findAndRemoveMatchingPair(symbolId: String): Pair<Tile, Tile>? {
+        val matches = slotTiles.filter { it.symbolId == symbolId }
+        if (matches.size >= 2) {
+            val a = matches[0]
+            val b = matches[1]
+            slotTiles.remove(a)
+            slotTiles.remove(b)
+            selectedSlotTile = null
+            return a to b
+        }
+        return null
+    }
+
+    fun removeFromSlot(tile: Tile) {
+        slotTiles.remove(tile)
+        if (selectedSlotTile?.id == tile.id) selectedSlotTile = null
         invalidate()
     }
 
@@ -165,8 +178,12 @@ class BoardView @JvmOverloads constructor(
         val board = board ?: return
         if (width == 0 || height == 0) return
 
+        val hudTopHeight = 56f * resources.displayMetrics.density
+        val hudBottomHeight = 80f * resources.displayMetrics.density
+        val slotAreaHeight = 80f * resources.displayMetrics.density
+
         val usableWidth = width.toFloat()
-        val usableHeight = height.toFloat()
+        val usableHeight = height.toFloat() - hudTopHeight - hudBottomHeight - slotAreaHeight
 
         tileWidth = (usableWidth - (board.width + 1) * 4f) / board.width
         tileHeight = tileWidth * 1.25f
@@ -175,12 +192,20 @@ class BoardView @JvmOverloads constructor(
         layerOffsetX = tileWidth * 0.07f
         layerOffsetY = tileHeight * 0.07f
 
-        boardScale = 1f
-
         val totalW = board.width * (tileWidth + tilePadding) + tilePadding
         val totalH = board.height * (tileHeight + tilePadding) + tilePadding + board.maxLayers * layerOffsetY
         boardLeft = (usableWidth - totalW) / 2f
-        boardTop = (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers
+        boardTop = hudTopHeight + slotAreaHeight + (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers
+
+        val slotHeight = 60f * resources.displayMetrics.density
+        val slotTop = hudTopHeight + 8f * resources.displayMetrics.density
+        slotY = slotTop
+        slotRect = RectF(
+            usableWidth * 0.08f,
+            slotTop,
+            usableWidth * 0.92f,
+            slotTop + slotHeight
+        )
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -197,6 +222,7 @@ class BoardView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawBoardBackground(canvas)
+        drawSlotArea(canvas)
 
         val board = board ?: return
         calculateDimensions()
@@ -210,11 +236,18 @@ class BoardView @JvmOverloads constructor(
             }
         }
 
-        if (!pulseAnimator.isRunning && selectedTile != null) {
+        drawAnimatingTile(canvas)
+        drawParticles(canvas)
+
+        if (!pulseAnimator.isRunning && selectedSlotTile != null) {
             pulseAnimator.start()
-        } else if (selectedTile == null && pulseAnimator.isRunning) {
+        } else if (selectedSlotTile == null && pulseAnimator.isRunning) {
             pulseAnimator.cancel()
             selectedPulse = 0f
+        }
+
+        if (!slotPulseAnimator.isRunning) {
+            slotPulseAnimator.start()
         }
     }
 
@@ -242,17 +275,107 @@ class BoardView @JvmOverloads constructor(
             Shader.TileMode.CLAMP
         )
         canvas.drawRoundRect(innerRect, 12f, 12f, bgPaint)
+        bgPaint.shader = null
     }
 
-    private val woodenPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val woodBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = 2f
-        color = Color.parseColor("#A1887F")
-    }
-    private val woodEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        color = Color.parseColor("#BCAAA4")
+    private fun drawSlotArea(canvas: Canvas) {
+        slotPaint.shader = LinearGradient(
+            slotRect.left, slotRect.top, slotRect.left, slotRect.bottom,
+            Color.parseColor("#5D4037"),
+            Color.parseColor("#4E342E"),
+            Shader.TileMode.CLAMP
+        )
+        canvas.drawRoundRect(slotRect, 12f, 12f, slotPaint)
+        canvas.drawRoundRect(slotRect, 12f, 12f, slotBorderPaint)
+
+        val innerSlot = RectF(
+            slotRect.left + 4f, slotRect.top + 4f,
+            slotRect.right - 4f, slotRect.bottom - 4f
+        )
+        slotPaint.shader = LinearGradient(
+            innerSlot.left, innerSlot.top, innerSlot.left, innerSlot.bottom,
+            Color.parseColor("#6D4C41"),
+            Color.parseColor("#5D4037"),
+            Shader.TileMode.CLAMP
+        )
+        canvas.drawRoundRect(innerSlot, 8f, 8f, slotPaint)
+        slotPaint.shader = null
+
+        val emptySlotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#4E342E")
+            style = Paint.Style.STROKE
+            strokeWidth = 1f
+            pathEffect = DashPathEffect(floatArrayOf(8f, 4f), 0f)
+        }
+
+        val slotTileW = (slotRect.width() - 20f) / maxSlotSize
+        val slotTileH = slotTileW * 1.2f
+        for (i in 0 until maxSlotSize) {
+            val x = slotRect.left + 10f + i * slotTileW + slotTileW * 0.05f
+            val y = slotRect.centerY() - slotTileH / 2f
+            val emptyRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
+            canvas.drawRoundRect(emptyRect, 4f, 4f, emptySlotPaint)
+        }
+
+        for ((index, tile) in slotTiles.withIndex()) {
+            val x = slotRect.left + 10f + index * slotTileW + slotTileW * 0.05f
+            val y = slotRect.centerY() - slotTileH / 2f
+            val tileRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
+
+            val isSelected = tile == selectedSlotTile
+            val isPulsing = isSelected && selectedPulse > 0f
+
+            val scale = if (isPulsing) 1f + selectedPulse * 0.05f else 1f
+            canvas.save()
+            canvas.scale(scale, scale, tileRect.centerX(), tileRect.centerY())
+
+            shadowPaint.alpha = 60
+            canvas.drawRoundRect(
+                RectF(tileRect.left + 1f, tileRect.top + 2f, tileRect.right + 1f, tileRect.bottom + 2f),
+                6f, 6f, shadowPaint
+            )
+            shadowPaint.alpha = 48
+
+            tileBgPaint.shader = LinearGradient(
+                tileRect.left, tileRect.top, tileRect.left, tileRect.bottom,
+                Color.parseColor("#FFF8E1"),
+                Color.parseColor("#F5E6D3"),
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawRoundRect(tileRect, 6f, 6f, tileBgPaint)
+            tileBgPaint.shader = null
+
+            tileBorderPaint.color = if (isSelected) Color.parseColor("#FF6F00") else Color.parseColor("#A1887F")
+            canvas.drawRoundRect(tileRect, 6f, 6f, tileBorderPaint)
+
+            if (isSelected) {
+                val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.parseColor("#FF6F00")
+                    style = Paint.Style.FILL
+                    maskFilter = BlurMaskFilter(6f + selectedPulse * 3f, BlurMaskFilter.Blur.NORMAL)
+                    alpha = (0.3f * 255).toInt()
+                }
+                canvas.drawRoundRect(tileRect, 6f, 6f, glowPaint)
+            }
+
+            val bitmap = getTileBitmap(tile.symbolId)
+            if (bitmap != null) {
+                val padding = slotTileW * 0.08f
+                val imgSize = slotTileW * 0.9f - padding * 2
+                val imgRect = RectF(
+                    tileRect.centerX() - imgSize / 2,
+                    tileRect.top + padding,
+                    tileRect.centerX() + imgSize / 2,
+                    tileRect.top + padding + imgSize
+                )
+                canvas.drawBitmap(bitmap, null, imgRect, slotTilePaint)
+            } else {
+                val miniIconSize = slotTileW * 0.5f
+                drawCanvasIcon(canvas, tile.symbolId, tileRect.centerX(), tileRect.centerY() - slotTileH * 0.05f, miniIconSize)
+            }
+
+            canvas.restore()
+        }
     }
 
     private fun drawTile(canvas: Canvas, tile: Tile, layer: Int) {
@@ -264,17 +387,15 @@ class BoardView @JvmOverloads constructor(
 
         canvas.save()
 
-        if (matchAnimTiles != null) {
-            val (a, b) = matchAnimTiles!!
+        if (breakingTiles != null) {
+            val (a, b) = breakingTiles!!
             if (tile.id == a.id || tile.id == b.id) {
-                val scale = 1f + matchAnimProgress * 0.15f
+                val scale = 1f + breakAnimProgress * 0.2f
                 canvas.scale(scale, scale, rect.centerX(), rect.centerY())
-                tileBgPaint.alpha = ((1f - matchAnimProgress) * 255).toInt().coerceIn(0, 255)
+                tileBgPaint.alpha = ((1f - breakAnimProgress) * 255).toInt().coerceIn(0, 255)
                 tileBorderPaint.alpha = tileBgPaint.alpha
                 iconPaint.alpha = tileBgPaint.alpha
                 textPaint.alpha = tileBgPaint.alpha
-                woodBorderPaint.alpha = tileBgPaint.alpha
-                woodEdgePaint.alpha = tileBgPaint.alpha
             }
         }
 
@@ -282,30 +403,34 @@ class BoardView @JvmOverloads constructor(
         canvas.drawRoundRect(shadowRect, cornerRadius, cornerRadius, shadowPaint)
 
         val isFree = tile in freeTiles
-        val isSelected = tile == selectedTile
-        val isHighlighted = tile in highlightedTiles
+        val isFaceUp = tile.isFaceUp
 
-        if (isFree) {
-            woodenPaint.shader = LinearGradient(
+        if (isFaceUp) {
+            tileBgPaint.shader = LinearGradient(
                 left, top, left, top + tileHeight,
                 Color.parseColor("#FFF8E1"),
                 Color.parseColor("#F5E6D3"),
                 Shader.TileMode.CLAMP
             )
         } else {
-            woodenPaint.shader = null
-            woodenPaint.color = Color.parseColor("#D7CCC8")
+            tileBgPaint.shader = null
+            tileBgPaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
         }
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, woodenPaint)
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBgPaint)
+        tileBgPaint.shader = null
 
-        woodEdgePaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
+        tileEdgePaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
         val edgeRect = RectF(left, top + tileHeight - 4f, left + tileWidth, top + tileHeight + 3f)
-        canvas.drawRoundRect(edgeRect, cornerRadius, cornerRadius, woodEdgePaint)
+        canvas.drawRoundRect(edgeRect, cornerRadius, cornerRadius, tileEdgePaint)
 
-        woodBorderPaint.color = if (isFree) Color.parseColor("#A1887F") else Color.parseColor("#8D6E63")
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, woodBorderPaint)
+        tileBorderPaint.color = when {
+            !isFree -> Color.parseColor("#8D6E63")
+            isFaceUp -> Color.parseColor("#A1887F")
+            else -> Color.parseColor("#8D6E63")
+        }
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBorderPaint)
 
-        if (isFree && getTileBitmap(tile.symbolId) == null) {
+        if (isFaceUp) {
             val innerRect = RectF(
                 left + tileWidth * 0.06f,
                 top + tileHeight * 0.06f,
@@ -320,41 +445,82 @@ class BoardView @JvmOverloads constructor(
             )
             canvas.drawRoundRect(innerRect, cornerRadius * 0.6f, cornerRadius * 0.6f, tileBgPaint)
             tileBgPaint.shader = null
+
+            drawTileIcon(canvas, tile, rect)
+        } else {
+            drawTileBack(canvas, rect)
         }
 
-        if (isHighlighted) {
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileHighlightBorder)
-        }
-
-        if (isSelected) {
-            val glowAlpha = (0.4f + selectedPulse * 0.3f)
-            tileSelectedBorder.alpha = (glowAlpha * 255).toInt()
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileSelectedBorder)
-
-            val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.parseColor("#FF6F00")
-                style = Paint.Style.FILL
-                maskFilter = BlurMaskFilter(8f + selectedPulse * 4f, BlurMaskFilter.Blur.NORMAL)
-                alpha = (glowAlpha * 100).toInt()
+        if (isFree && !isFaceUp) {
+            val freeGlow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#4CAF50")
+                style = Paint.Style.STROKE
+                strokeWidth = 2f
+                alpha = (100 + selectedPulse * 50).toInt()
             }
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, glowPaint)
+            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, freeGlow)
         }
-
-        drawTileIcon(canvas, tile, rect)
 
         tileBgPaint.alpha = 255
         tileBorderPaint.alpha = 255
         iconPaint.alpha = 255
         textPaint.alpha = 255
-        woodBorderPaint.alpha = 255
-        woodEdgePaint.alpha = 255
 
         canvas.restore()
+    }
+
+    private fun drawTileBack(canvas: Canvas, rect: RectF) {
+        val cx = rect.centerX()
+        val cy = rect.centerY()
+
+        val patternPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#8D6E63")
+            style = Paint.Style.STROKE
+            strokeWidth = 1.5f
+        }
+
+        val innerRect = RectF(
+            rect.left + tileWidth * 0.12f,
+            rect.top + tileHeight * 0.1f,
+            rect.right - tileWidth * 0.12f,
+            rect.bottom - tileHeight * 0.1f
+        )
+        canvas.drawRoundRect(innerRect, 6f, 6f, patternPaint)
+
+        val diamondSize = tileWidth * 0.15f
+        val diamondPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#A1887F")
+            style = Paint.Style.FILL
+        }
+
+        for (dy in -1..1) {
+            for (dx in -1..1) {
+                val px = cx + dx * tileWidth * 0.22f
+                val py = cy + dy * tileHeight * 0.2f
+                if (px > innerRect.left + 4f && px < innerRect.right - 4f &&
+                    py > innerRect.top + 4f && py < innerRect.bottom - 4f) {
+                    val dPath = Path()
+                    dPath.moveTo(px, py - diamondSize)
+                    dPath.lineTo(px + diamondSize, py)
+                    dPath.lineTo(px, py + diamondSize)
+                    dPath.lineTo(px - diamondSize, py)
+                    dPath.close()
+                    canvas.drawPath(dPath, diamondPaint)
+                }
+            }
+        }
+
+        val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#6D4C41")
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, tileWidth * 0.08f, centerPaint)
     }
 
     private fun drawTileIcon(canvas: Canvas, tile: Tile, rect: RectF) {
         val cx = rect.centerX()
         val cy = rect.centerY() - tileHeight * 0.04f
+        val iconSize = tileWidth * 0.5f
         val symbol = tile.symbolId
 
         val bitmap = getTileBitmap(symbol)
@@ -363,25 +529,23 @@ class BoardView @JvmOverloads constructor(
             val imgSize = tileWidth - padding * 2
             val imgTop = cy - imgSize * 0.45f
             val imgRect = RectF(cx - imgSize / 2, imgTop, cx + imgSize / 2, imgTop + imgSize)
-
-            val savedAlpha = tileBitmapPaint.alpha
-            tileBitmapPaint.alpha = iconPaint.alpha
-            canvas.drawBitmap(bitmap, null, imgRect, tileBitmapPaint)
-            tileBitmapPaint.alpha = savedAlpha
-
-            textPaint.textSize = tileWidth * 0.1f
-            textPaint.color = Color.parseColor("#5D4037")
-            textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
-            val label = symbol.replace("_", " ")
-            if (label.length > 12) textPaint.textSize = tileWidth * 0.08f
-            canvas.drawText(label, cx, rect.bottom - tileHeight * 0.06f, textPaint)
-            textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-            return
+            canvas.drawBitmap(bitmap, null, imgRect, slotTilePaint)
+        } else {
+            iconPaint.color = getCategoryColor(symbol)
+            drawCanvasIcon(canvas, symbol, cx, cy, iconSize)
         }
 
-        val iconSize = tileWidth * 0.55f
-        iconPaint.color = getCategoryColor(symbol)
+        textPaint.textSize = tileWidth * 0.1f
+        textPaint.color = Color.parseColor("#5D4037")
+        textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
+        val label = symbol.replace("_", " ")
+        if (label.length > 12) textPaint.textSize = tileWidth * 0.08f
+        canvas.drawText(label, cx, rect.bottom - tileHeight * 0.06f, textPaint)
+        textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+    }
 
+    private fun drawCanvasIcon(canvas: Canvas, symbol: String, cx: Float, cy: Float, iconSize: Float) {
+        iconPaint.color = getCategoryColor(symbol)
         when {
             symbol.contains("drum") || symbol == "kalangu" || symbol == "gurmi" || symbol == "shantu" -> drawDrum(canvas, cx, cy, iconSize)
             symbol.contains("shield") || symbol == "garkuwa" || symbol == "takobi" || symbol == "baka" -> drawWeapon(canvas, cx, cy, iconSize)
@@ -404,12 +568,6 @@ class BoardView @JvmOverloads constructor(
             symbol.contains("gidan") || symbol.contains("rumfa") || symbol.contains("jemea") || symbol.contains("nok") || symbol.contains("gwandu") || symbol.contains("gohir") || symbol.contains("bimin") || symbol.contains("shehu") || symbol.contains("argungu") -> drawPalace(canvas, cx, cy, iconSize)
             else -> drawDefaultIcon(canvas, cx, cy, iconSize, symbol)
         }
-
-        textPaint.textSize = tileWidth * 0.1f
-        textPaint.color = Color.parseColor("#78909C")
-        val label = symbol.replace("_", " ")
-        if (label.length > 12) textPaint.textSize = tileWidth * 0.08f
-        canvas.drawText(label, cx, rect.bottom - tileHeight * 0.06f, textPaint)
     }
 
     private fun drawDrum(canvas: Canvas, cx: Float, cy: Float, size: Float) {
@@ -417,21 +575,9 @@ class BoardView @JvmOverloads constructor(
         val h = size * 0.5f
         iconPaint.color = Color.parseColor("#8D6E63")
         canvas.drawOval(RectF(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), iconPaint)
-
-        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#5D4037")
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-        }
+        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#5D4037"); style = Paint.Style.STROKE; strokeWidth = 2f }
         canvas.drawLine(cx - w * 0.3f, cy, cx + w * 0.3f, cy, linePaint)
         canvas.drawLine(cx, cy - h * 0.35f, cx, cy + h * 0.35f, linePaint)
-
-        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#5D4037")
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx - w * 0.25f, cy - h * 0.15f, 2f, dotPaint)
-        canvas.drawCircle(cx + w * 0.25f, cy + h * 0.15f, 2f, dotPaint)
     }
 
     private fun drawWeapon(canvas: Canvas, cx: Float, cy: Float, size: Float) {
@@ -444,7 +590,6 @@ class BoardView @JvmOverloads constructor(
         path.lineTo(cx - size * 0.08f, cy - size * 0.1f)
         path.close()
         canvas.drawPath(path, iconPaint)
-
         iconPaint.color = Color.parseColor("#455A64")
         canvas.drawRect(RectF(cx - size * 0.15f, cy - size * 0.13f, cx + size * 0.15f, cy - size * 0.08f), iconPaint)
     }
@@ -452,7 +597,6 @@ class BoardView @JvmOverloads constructor(
     private fun drawBuilding(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#A1887F")
         canvas.drawRect(RectF(cx - size * 0.35f, cy - size * 0.1f, cx + size * 0.35f, cy + size * 0.4f), iconPaint)
-
         val triPath = Path()
         triPath.moveTo(cx, cy - size * 0.35f)
         triPath.lineTo(cx + size * 0.4f, cy - size * 0.1f)
@@ -460,7 +604,6 @@ class BoardView @JvmOverloads constructor(
         triPath.close()
         iconPaint.color = Color.parseColor("#8D6E63")
         canvas.drawPath(triPath, iconPaint)
-
         iconPaint.color = Color.parseColor("#5D4037")
         canvas.drawRect(RectF(cx - size * 0.08f, cy + size * 0.1f, cx + size * 0.08f, cy + size * 0.4f), iconPaint)
     }
@@ -468,26 +611,14 @@ class BoardView @JvmOverloads constructor(
     private fun drawPalace(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#795548")
         canvas.drawRect(RectF(cx - size * 0.4f, cy, cx + size * 0.4f, cy + size * 0.4f), iconPaint)
-
         iconPaint.color = Color.parseColor("#A1887F")
         canvas.drawRect(RectF(cx - size * 0.45f, cy - size * 0.05f, cx + size * 0.45f, cy + size * 0.05f), iconPaint)
-
-        val domePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#8D6E63")
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy - size * 0.2f, size * 0.18f, domePaint)
-
+        canvas.drawCircle(cx, cy - size * 0.2f, size * 0.18f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#8D6E63"); style = Paint.Style.FILL })
         iconPaint.color = Color.parseColor("#FFD54F")
         canvas.drawRect(RectF(cx - size * 0.04f, cy - size * 0.38f, cx + size * 0.04f, cy - size * 0.22f), iconPaint)
         canvas.drawCircle(cx, cy - size * 0.38f, size * 0.03f, iconPaint)
-
         iconPaint.color = Color.parseColor("#5D4037")
         canvas.drawRect(RectF(cx - size * 0.1f, cy + size * 0.15f, cx + size * 0.1f, cy + size * 0.4f), iconPaint)
-
-        for (i in -1..1 step 2) {
-            canvas.drawRect(RectF(cx + i * size * 0.25f - size * 0.04f, cy + size * 0.08f, cx + i * size * 0.25f + size * 0.04f, cy + size * 0.16f), iconPaint)
-        }
     }
 
     private fun drawPerson(canvas: Canvas, cx: Float, cy: Float, size: Float, symbol: String) {
@@ -500,10 +631,8 @@ class BoardView @JvmOverloads constructor(
             symbol.contains("barde") || symbol.contains("jakada") -> Color.parseColor("#C62828")
             else -> Color.parseColor("#5D4037")
         }
-
         iconPaint.color = headColor
         canvas.drawCircle(cx, cy - size * 0.25f, size * 0.12f, iconPaint)
-
         iconPaint.color = bodyColor
         val bodyPath = Path()
         bodyPath.moveTo(cx, cy - size * 0.12f)
@@ -511,7 +640,6 @@ class BoardView @JvmOverloads constructor(
         bodyPath.lineTo(cx - size * 0.2f, cy + size * 0.35f)
         bodyPath.close()
         canvas.drawPath(bodyPath, iconPaint)
-
         if (symbol.contains("sarki")) {
             iconPaint.color = Color.parseColor("#FFD54F")
             val crownPath = Path()
@@ -528,7 +656,6 @@ class BoardView @JvmOverloads constructor(
     private fun drawWoman(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#8D6E63")
         canvas.drawCircle(cx, cy - size * 0.25f, size * 0.1f, iconPaint)
-
         iconPaint.color = Color.parseColor("#E91E63")
         val bodyPath = Path()
         bodyPath.moveTo(cx - size * 0.05f, cy - size * 0.14f)
@@ -537,18 +664,12 @@ class BoardView @JvmOverloads constructor(
         bodyPath.quadTo(cx + size * 0.25f, cy + size * 0.1f, cx + size * 0.05f, cy - size * 0.14f)
         bodyPath.close()
         canvas.drawPath(bodyPath, iconPaint)
-
-        val headWrap = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#FFD54F")
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy - size * 0.3f, size * 0.06f, headWrap)
+        canvas.drawCircle(cx, cy - size * 0.3f, size * 0.06f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#FFD54F"); style = Paint.Style.FILL })
     }
 
     private fun drawChild(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#A1887F")
         canvas.drawCircle(cx, cy - size * 0.15f, size * 0.09f, iconPaint)
-
         iconPaint.color = Color.parseColor("#66BB6A")
         canvas.drawRect(RectF(cx - size * 0.12f, cy - size * 0.05f, cx + size * 0.12f, cy + size * 0.25f), iconPaint)
     }
@@ -575,69 +696,34 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawCloth(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#1565C0")
-        val clothPath = Path()
-        clothPath.moveTo(cx - size * 0.3f, cy - size * 0.3f)
-        clothPath.lineTo(cx + size * 0.3f, cy - size * 0.3f)
-        clothPath.lineTo(cx + size * 0.35f, cy + size * 0.35f)
-        clothPath.lineTo(cx - size * 0.35f, cy + size * 0.35f)
-        clothPath.close()
-        canvas.drawPath(clothPath, iconPaint)
-
-        val patternPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#FFD54F")
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-        }
-        for (i in -2..2) {
-            val y = cy + i * size * 0.12f
-            canvas.drawLine(cx - size * 0.25f, y, cx + size * 0.25f, y, patternPaint)
-        }
-        for (i in -1..1) {
-            val x = cx + i * size * 0.15f
-            canvas.drawLine(x, cy - size * 0.25f, x, cy + size * 0.3f, patternPaint)
-        }
+        canvas.drawRect(RectF(cx - size * 0.3f, cy - size * 0.3f, cx + size * 0.3f, cy + size * 0.35f), iconPaint)
+        val patternPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#FFD54F"); style = Paint.Style.STROKE; strokeWidth = 2f }
+        for (i in -2..2) { canvas.drawLine(cx - size * 0.25f, cy + i * size * 0.12f, cx + size * 0.25f, cy + i * size * 0.12f, patternPaint) }
+        for (i in -1..1) { canvas.drawLine(cx + i * size * 0.15f, cy - size * 0.25f, cx + i * size * 0.15f, cy + size * 0.3f, patternPaint) }
     }
 
     private fun drawWater(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#1E88E5")
-        val ovalRect = RectF(cx - size * 0.3f, cy - size * 0.15f, cx + size * 0.3f, cy + size * 0.15f)
-        canvas.drawOval(ovalRect, iconPaint)
-
-        val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#64B5F6")
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-        }
+        canvas.drawOval(RectF(cx - size * 0.3f, cy - size * 0.15f, cx + size * 0.3f, cy + size * 0.15f), iconPaint)
+        val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#64B5F6"); style = Paint.Style.STROKE; strokeWidth = 2f }
         val wavePath = Path()
         wavePath.moveTo(cx - size * 0.2f, cy)
         wavePath.quadTo(cx - size * 0.1f, cy - size * 0.06f, cx, cy)
         wavePath.quadTo(cx + size * 0.1f, cy + size * 0.06f, cx + size * 0.2f, cy)
         canvas.drawPath(wavePath, wavePaint)
-
-        iconPaint.color = Color.parseColor("#A1887F")
-        canvas.drawRect(RectF(cx - size * 0.06f, cy - size * 0.35f, cx + size * 0.06f, cy - size * 0.15f), iconPaint)
-        canvas.drawRect(RectF(cx - size * 0.15f, cy - size * 0.35f, cx + size * 0.15f, cy - size * 0.3f), iconPaint)
     }
 
     private fun drawMarket(canvas: Canvas, cx: Float, cy: Float, size: Float) {
-        val awningPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#FF8F00")
-            style = Paint.Style.FILL
-        }
+        iconPaint.color = Color.parseColor("#FF8F00")
         val awningPath = Path()
         awningPath.moveTo(cx - size * 0.35f, cy - size * 0.05f)
         awningPath.lineTo(cx + size * 0.35f, cy - size * 0.05f)
         awningPath.lineTo(cx + size * 0.4f, cy - size * 0.2f)
         awningPath.lineTo(cx - size * 0.4f, cy - size * 0.2f)
         awningPath.close()
-        canvas.drawPath(awningPath, awningPaint)
-
+        canvas.drawPath(awningPath, iconPaint)
         iconPaint.color = Color.parseColor("#8D6E63")
         canvas.drawRect(RectF(cx - size * 0.3f, cy - size * 0.05f, cx + size * 0.3f, cy + size * 0.35f), iconPaint)
-
-        iconPaint.color = Color.parseColor("#FFD54F")
-        canvas.drawRect(RectF(cx - size * 0.2f, cy + size * 0.05f, cx - size * 0.05f, cy + size * 0.25f), iconPaint)
-        canvas.drawRect(RectF(cx + size * 0.05f, cy + size * 0.05f, cx + size * 0.2f, cy + size * 0.25f), iconPaint)
     }
 
     private fun drawNature(canvas: Canvas, cx: Float, cy: Float, size: Float) {
@@ -645,17 +731,13 @@ class BoardView @JvmOverloads constructor(
         canvas.drawCircle(cx, cy - size * 0.1f, size * 0.2f, iconPaint)
         canvas.drawCircle(cx - size * 0.15f, cy + size * 0.05f, size * 0.15f, iconPaint)
         canvas.drawCircle(cx + size * 0.15f, cy + size * 0.05f, size * 0.15f, iconPaint)
-
         iconPaint.color = Color.parseColor("#795548")
         canvas.drawRect(RectF(cx - size * 0.05f, cy + size * 0.15f, cx + size * 0.05f, cy + size * 0.35f), iconPaint)
     }
 
     private fun drawNatureSmall(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#66BB6A")
-        for (i in 0..2) {
-            val x = cx + (i - 1) * size * 0.18f
-            canvas.drawCircle(x, cy - size * 0.05f, size * 0.1f, iconPaint)
-        }
+        for (i in 0..2) { canvas.drawCircle(cx + (i - 1) * size * 0.18f, cy - size * 0.05f, size * 0.1f, iconPaint) }
         iconPaint.color = Color.parseColor("#795548")
         canvas.drawRect(RectF(cx - size * 0.03f, cy + size * 0.1f, cx + size * 0.03f, cy + size * 0.25f), iconPaint)
     }
@@ -663,22 +745,12 @@ class BoardView @JvmOverloads constructor(
     private fun drawHousehold(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#8D6E63")
         canvas.drawRect(RectF(cx - size * 0.2f, cy - size * 0.1f, cx + size * 0.2f, cy + size * 0.25f), iconPaint)
-
-        val lidPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#5D4037")
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
-        }
-        canvas.drawLine(cx - size * 0.2f, cy - size * 0.1f, cx + size * 0.2f, cy - size * 0.1f, lidPaint)
-
-        iconPaint.color = Color.parseColor("#FF8F00")
-        canvas.drawRect(RectF(cx + size * 0.15f, cy - size * 0.02f, cx + size * 0.28f, cy + size * 0.02f), iconPaint)
+        canvas.drawLine(cx - size * 0.2f, cy - size * 0.1f, cx + size * 0.2f, cy - size * 0.1f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#5D4037"); style = Paint.Style.STROKE; strokeWidth = 3f })
     }
 
     private fun drawTool(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#78909C")
         canvas.drawRect(RectF(cx - size * 0.04f, cy - size * 0.35f, cx + size * 0.04f, cy + size * 0.15f), iconPaint)
-
         iconPaint.color = Color.parseColor("#5D4037")
         val bladePath = Path()
         bladePath.moveTo(cx, cy + size * 0.15f)
@@ -691,24 +763,15 @@ class BoardView @JvmOverloads constructor(
     private fun drawSchool(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#1565C0")
         canvas.drawRect(RectF(cx - size * 0.35f, cy - size * 0.05f, cx + size * 0.35f, cy + size * 0.35f), iconPaint)
-
         iconPaint.color = Color.parseColor("#BBDEFB")
         canvas.drawRect(RectF(cx - size * 0.25f, cy + size * 0.05f, cx - size * 0.08f, cy + size * 0.2f), iconPaint)
         canvas.drawRect(RectF(cx + size * 0.08f, cy + size * 0.05f, cx + size * 0.25f, cy + size * 0.2f), iconPaint)
-
-        iconPaint.color = Color.parseColor("#E53935")
-        val flagPath = Path()
-        flagPath.moveTo(cx, cy - size * 0.05f)
-        flagPath.lineTo(cx, cy - size * 0.35f)
-        canvas.drawPath(flagPath, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#795548"); style = Paint.Style.STROKE; strokeWidth = 2f })
-        canvas.drawRect(RectF(cx, cy - size * 0.35f, cx + size * 0.15f, cy - size * 0.25f), iconPaint)
     }
 
     private fun drawGate(canvas: Canvas, cx: Float, cy: Float, size: Float) {
         iconPaint.color = Color.parseColor("#A1887F")
         canvas.drawRect(RectF(cx - size * 0.35f, cy - size * 0.35f, cx - size * 0.2f, cy + size * 0.35f), iconPaint)
         canvas.drawRect(RectF(cx + size * 0.2f, cy - size * 0.35f, cx + size * 0.35f, cy + size * 0.35f), iconPaint)
-
         iconPaint.color = Color.parseColor("#8D6E63")
         val archPath = Path()
         archPath.moveTo(cx - size * 0.2f, cy - size * 0.1f)
@@ -721,17 +784,8 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawDefaultIcon(canvas: Canvas, cx: Float, cy: Float, size: Float, symbol: String) {
         iconPaint.color = getCategoryColor(symbol)
-        canvas.drawRoundRect(
-            RectF(cx - size * 0.3f, cy - size * 0.3f, cx + size * 0.3f, cy + size * 0.3f),
-            8f, 8f, iconPaint
-        )
-
-        val charPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            textSize = size * 0.35f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
-        }
+        canvas.drawRoundRect(RectF(cx - size * 0.3f, cy - size * 0.3f, cx + size * 0.3f, cy + size * 0.3f), 8f, 8f, iconPaint)
+        val charPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; textSize = size * 0.35f; textAlign = Paint.Align.CENTER; isFakeBoldText = true }
         val initial = symbol.replace("_", " ").split(" ").firstOrNull()?.firstOrNull()?.uppercase() ?: "?"
         canvas.drawText(initial, cx, cy + size * 0.12f, charPaint)
     }
@@ -752,43 +806,104 @@ class BoardView @JvmOverloads constructor(
         }
     }
 
+    private fun drawAnimatingTile(canvas: Canvas) {
+        val anim = animatingTile ?: return
+        val bitmap = getTileBitmap(anim.tile.symbolId)
+
+        canvas.save()
+        val progress = anim.progress
+        val x = anim.startX + (anim.endX - anim.startX) * progress
+        val y = anim.startY + (anim.endY - anim.startY) * progress
+        val scale = 1f + (1f - progress) * 0.3f
+        canvas.scale(scale, scale, x, y)
+
+        val tileRect = RectF(x - tileWidth / 2, y - tileHeight / 2, x + tileWidth / 2, y + tileHeight / 2)
+
+        tileBgPaint.shader = LinearGradient(
+            tileRect.left, tileRect.top, tileRect.left, tileRect.bottom,
+            Color.parseColor("#FFF8E1"),
+            Color.parseColor("#F5E6D3"),
+            Shader.TileMode.CLAMP
+        )
+        canvas.drawRoundRect(tileRect, cornerRadius, cornerRadius, tileBgPaint)
+        tileBgPaint.shader = null
+
+        canvas.drawRoundRect(tileRect, cornerRadius, cornerRadius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#A1887F"); style = Paint.Style.STROKE; strokeWidth = 2f
+        })
+
+        if (bitmap != null) {
+            val padding = tileWidth * 0.08f
+            val imgSize = tileWidth - padding * 2
+            val imgRect = RectF(x - imgSize / 2, y - imgSize / 2, x + imgSize / 2, y + imgSize / 2)
+            canvas.drawBitmap(bitmap, null, imgRect, slotTilePaint)
+        } else {
+            drawCanvasIcon(canvas, anim.tile.symbolId, x, y, tileWidth * 0.5f)
+        }
+
+        canvas.restore()
+    }
+
+    private fun drawParticles(canvas: Canvas) {
+        val iter = particles.iterator()
+        while (iter.hasNext()) {
+            val p = iter.next()
+            p.update()
+            if (p.life <= 0f) {
+                iter.remove()
+                continue
+            }
+            p.paint.alpha = (p.life * 255).toInt().coerceIn(0, 255)
+            canvas.drawCircle(p.x, p.y, p.size * p.life, p.paint)
+        }
+        if (particles.isNotEmpty()) invalidate()
+    }
+
+    private fun getTileBitmap(symbolId: String): Bitmap? {
+        tileBitmapCache[symbolId]?.let { return it }
+
+        val resName = "tile_$symbolId"
+        val resId = context.resources.getIdentifier(resName, "drawable", context.packageName)
+        if (resId == 0) {
+            tileBitmapCache[symbolId] = null
+            return null
+        }
+
+        val drawable: Drawable? = try { context.getDrawable(resId) } catch (e: Exception) { null }
+        val bitmap = when (drawable) {
+            is BitmapDrawable -> drawable.bitmap
+            else -> {
+                val bmp = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
+                val c = Canvas(bmp)
+                drawable?.setBounds(0, 0, 256, 256)
+                drawable?.draw(c)
+                bmp
+            }
+        }
+
+        tileBitmapCache[symbolId] = bitmap
+        return bitmap
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                val tile = getTileAtPosition(event.x, event.y) ?: return false
-                if (tile in freeTiles) {
-                    handleTileClick(tile)
+                val slotTile = getSlotTileAtPosition(event.x, event.y)
+                if (slotTile != null) {
+                    soundManager?.tileClick()
+                    listener?.onSlotTileClicked(slotTile)
+                    return true
+                }
+
+                val boardTile = getTileAtPosition(event.x, event.y)
+                if (boardTile != null && boardTile in freeTiles) {
+                    soundManager?.tileClick()
+                    listener?.onTileClicked(boardTile)
                     return true
                 }
             }
         }
         return super.onTouchEvent(event)
-    }
-
-    private fun handleTileClick(tile: Tile) {
-        soundManager?.tap()
-        if (selectedTile == null) {
-            selectedTile = tile
-            soundManager?.select()
-            listener?.onTileClicked(tile)
-            invalidate()
-        } else {
-            if (selectedTile == tile) {
-                selectedTile = null
-                invalidate()
-                return
-            }
-
-            val firstTile = selectedTile!!
-            if (MatchEngine.canMatch(firstTile, tile, board!!)) {
-                listener?.onMatchAttempt(firstTile, tile)
-            } else {
-                soundManager?.mismatch()
-                selectedTile = tile
-                listener?.onTileClicked(tile)
-                invalidate()
-            }
-        }
     }
 
     private fun getTileAtPosition(touchX: Float, touchY: Float): Tile? {
@@ -813,23 +928,36 @@ class BoardView @JvmOverloads constructor(
         return null
     }
 
-    fun animateMatch(tileA: Tile, tileB: Tile, onComplete: () -> Unit) {
-        matchAnimTiles = tileA to tileB
-        matchAnimProgress = 0f
+    private fun getSlotTileAtPosition(touchX: Float, touchY: Float): Tile? {
+        if (!slotRect.contains(touchX, touchY)) return null
+        val slotTileW = (slotRect.width() - 20f) / maxSlotSize
+        val slotTileH = slotTileW * 1.2f
+
+        for ((index, tile) in slotTiles.withIndex()) {
+            val x = slotRect.left + 10f + index * slotTileW + slotTileW * 0.05f
+            val y = slotRect.centerY() - slotTileH / 2f
+            val tileRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
+            if (tileRect.contains(touchX, touchY)) return tile
+        }
+        return null
+    }
+
+    fun animateTileToSlot(tile: Tile, fromX: Float, fromY: Float, onComplete: () -> Unit) {
+        val slotTileW = (slotRect.width() - 20f) / maxSlotSize
+        val targetX = slotRect.left + 10f + slotTiles.size * slotTileW + slotTileW * 0.5f
+        val targetY = slotRect.centerY()
+
+        animatingTile = AnimatingTile(tile, fromX, fromY, targetX, targetY)
         ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 300
-            interpolator = DecelerateInterpolator()
+            duration = 350
+            interpolator = OvershootInterpolator(1.2f)
             addUpdateListener {
-                matchAnimProgress = it.animatedValue as Float
+                animatingTile?.progress = it.animatedValue as Float
                 invalidate()
             }
-            addListener(object : android.animation.AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: android.animation.Animator) {
-                    matchAnimTiles = null
-                    matchAnimProgress = 0f
-                    selectedTile = null
-                    highlightedTiles = emptyList()
-                    freeTiles = MatchEngine.getFreeTiles(board!!)
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    animatingTile = null
                     invalidate()
                     onComplete()
                 }
@@ -838,21 +966,117 @@ class BoardView @JvmOverloads constructor(
         }
     }
 
-    fun animateWrongMatch(tileA: Tile, tileB: Tile, onComplete: () -> Unit) {
-        val origX = tileA.x
-        postDelayed({
-            invalidate()
-            onComplete()
-        }, 400)
+    fun animateBreak(tileA: Tile, tileB: Tile, onComplete: () -> Unit) {
+        val board = board ?: return
+        var tileARect: RectF? = null
+        var tileBRect: RectF? = null
+
+        for (layer in 0 until board.maxLayers) {
+            for (y in 0 until board.height) {
+                for (x in 0 until board.width) {
+                    val tile = board.getTileAt(x, y, layer) ?: continue
+                    if (tile.id == tileA.id) {
+                        val left = boardLeft + tilePadding + x * (tileWidth + tilePadding) + layer * layerOffsetX
+                        val top = boardTop + tilePadding + y * (tileHeight + tilePadding) - layer * layerOffsetY
+                        tileARect = RectF(left, top, left + tileWidth, top + tileHeight)
+                    }
+                    if (tile.id == tileB.id) {
+                        val left = boardLeft + tilePadding + x * (tileWidth + tilePadding) + layer * layerOffsetX
+                        val top = boardTop + tilePadding + y * (tileHeight + tilePadding) - layer * layerOffsetY
+                        tileBRect = RectF(left, top, left + tileWidth, top + tileHeight)
+                    }
+                }
+            }
+        }
+
+        tileARect?.let { spawnBreakParticles(it) }
+        tileBRect?.let { spawnBreakParticles(it) }
+
+        breakingTiles = tileA to tileB
+        breakAnimProgress = 0f
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 400
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                breakAnimProgress = it.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    breakingTiles = null
+                    breakAnimProgress = 0f
+                    invalidate()
+                    onComplete()
+                }
+            })
+            start()
+        }
     }
 
-    fun showHint(tiles: List<Tile>) {
-        highlightTiles(tiles)
-        soundManager?.hint()
+    private fun spawnBreakParticles(rect: RectF) {
+        val colors = intArrayOf(
+            Color.parseColor("#FFD54F"),
+            Color.parseColor("#8D6E63"),
+            Color.parseColor("#A1887F"),
+            Color.parseColor("#FFE0B2"),
+            Color.parseColor("#BCAAA4")
+        )
+        val cx = rect.centerX()
+        val cy = rect.centerY()
+
+        for (i in 0 until 20) {
+            val angle = Random.nextFloat() * 360f
+            val speed = 2f + Random.nextFloat() * 5f
+            val vx = cos(Math.toRadians(angle.toDouble())).toFloat() * speed
+            val vy = sin(Math.toRadians(angle.toDouble())).toFloat() * speed - 3f
+            val size = 3f + Random.nextFloat() * 6f
+            val color = colors[Random.nextInt(colors.size)]
+
+            particles.add(Particle(cx, cy, vx, vy, size, color))
+        }
+        invalidate()
+    }
+
+    fun refreshFreeTiles() {
+        val b = board ?: return
+        freeTiles = MatchEngine.getFreeTiles(b)
+        invalidate()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         pulseAnimator.cancel()
+        slotPulseAnimator.cancel()
+    }
+
+    data class AnimatingTile(
+        val tile: Tile,
+        val startX: Float,
+        val startY: Float,
+        val endX: Float,
+        val endY: Float,
+        var progress: Float = 0f
+    )
+
+    class Particle(
+        var x: Float,
+        var y: Float,
+        var vx: Float,
+        var vy: Float,
+        val size: Float,
+        color: Int
+    ) {
+        var life = 1f
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.FILL
+        }
+
+        fun update() {
+            x += vx
+            y += vy
+            vy += 0.15f
+            life -= 0.02f
+        }
     }
 }

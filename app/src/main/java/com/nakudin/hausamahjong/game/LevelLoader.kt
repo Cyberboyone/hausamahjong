@@ -63,7 +63,18 @@ object LevelLoader {
             )
             board.tiles.add(tile)
         }
+
+        assignFaceUpStatus(board)
+
         return board
+    }
+
+    private fun assignFaceUpStatus(board: Board) {
+        for (tile in board.tiles) {
+            val aboveTile = board.getTileAt(tile.x, tile.y, tile.layer + 1)
+            val hasAbove = aboveTile != null && !aboveTile.isMatched
+            tile.isFaceUp = !hasAbove
+        }
     }
 
     private fun generateLayoutTiles(data: LevelData, symbols: List<String>): List<TileData> {

@@ -27,11 +27,21 @@ data class Board(
 
     fun removeTile(tile: Tile) {
         tile.isMatched = true
+        flipUncoveredTiles()
     }
 
     fun removeTiles(a: Tile, b: Tile) {
         a.isMatched = true
         b.isMatched = true
+        flipUncoveredTiles()
+    }
+
+    fun flipUncoveredTiles() {
+        for (tile in tiles) {
+            if (tile.isMatched) continue
+            val aboveTile = getTileAt(tile.x, tile.y, tile.layer + 1)
+            tile.isFaceUp = aboveTile == null
+        }
     }
 
     fun isCleared(): Boolean = tiles.all { it.isMatched }

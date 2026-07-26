@@ -149,6 +149,27 @@ class SoundManager(private val context: Context) {
         }, 100)
     }
 
+    fun tileClick() {
+        playCustomTone(1200.0, 30, 0.25f)
+        vibrate(15)
+    }
+
+    fun tilePlace() {
+        playCustomTone(440.0, 60, 0.3f)
+        playCustomTone(554.37, 40, 0.2f)
+    }
+
+    fun tileBreak() {
+        playCustomTone(800.0, 30, 0.5f)
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            playCustomTone(400.0, 50, 0.4f)
+        }, 30)
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            playCustomTone(200.0, 80, 0.3f)
+        }, 60)
+        vibrate(80)
+    }
+
     fun release() {
         try {
             toneGenerator?.release()
