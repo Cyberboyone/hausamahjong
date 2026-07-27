@@ -13,6 +13,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import com.nakudin.hausamahjong.audio.SoundManager
+import com.nakudin.hausamahjong.data.TileSetRepository
 import com.nakudin.hausamahjong.game.Board
 import com.nakudin.hausamahjong.game.MatchEngine
 import com.nakudin.hausamahjong.game.Tile
@@ -862,7 +863,13 @@ class BoardView @JvmOverloads constructor(
     private fun getTileBitmap(symbolId: String): Bitmap? {
         tileBitmapCache[symbolId]?.let { return it }
 
-        val resName = "tile_$symbolId"
+        val index = TileSetRepository.getSymbolIndex(symbolId)
+        if (index < 0) {
+            tileBitmapCache[symbolId] = null
+            return null
+        }
+
+        val resName = "tile_$index"
         val resId = context.resources.getIdentifier(resName, "drawable", context.packageName)
         if (resId == 0) {
             tileBitmapCache[symbolId] = null

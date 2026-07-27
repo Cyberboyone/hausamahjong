@@ -47,9 +47,9 @@ object TileSetRepository {
     fun getCount(): Int = tileSets.size
 
     fun getDrawableResId(symbolId: String): Int {
-        val tileSet = getTileSet(symbolId) ?: return R.drawable.tile_placeholder
-        val resName = tileSet.drawable_ref.ifEmpty { "tile_$symbolId" }
-        val resId = context?.resources?.getIdentifier(resName, "drawable", context?.packageName) ?: 0
+        val index = tileSets.indexOfFirst { it.id == symbolId }
+        if (index < 0) return R.drawable.tile_placeholder
+        val resId = context?.resources?.getIdentifier("tile_$index", "drawable", context?.packageName) ?: 0
         return if (resId != 0) resId else R.drawable.tile_placeholder
     }
 
@@ -99,6 +99,10 @@ object TileSetRepository {
 
     fun getSymbolNameEnglish(symbolId: String): String {
         return getTileSet(symbolId)?.name_en ?: symbolId
+    }
+
+    fun getSymbolIndex(symbolId: String): Int {
+        return tileSets.indexOfFirst { it.id == symbolId }
     }
 
     fun getSymbolsByCategory(category: String): List<TileSet> {
