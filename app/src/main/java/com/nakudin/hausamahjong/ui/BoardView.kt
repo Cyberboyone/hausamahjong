@@ -36,7 +36,7 @@ class BoardView @JvmOverloads constructor(
 
     private var board: Board? = null
     private var listener: OnTileClickListener? = null
-    private var freeTiles: List<Tile> = emptyList()
+    private var freeTiles: Set<Tile> = emptySet()
 
     private val slotTiles = mutableListOf<Tile>()
     private val maxSlotSize = 4
@@ -126,7 +126,7 @@ class BoardView @JvmOverloads constructor(
 
     fun setBoard(board: Board) {
         this.board = board
-        this.freeTiles = MatchEngine.getFreeTiles(board)
+        this.freeTiles = MatchEngine.getFreeTiles(board).toSet()
         slotTiles.clear()
         selectedSlotTile = null
         // Restore slot tiles from board state
@@ -159,6 +159,7 @@ class BoardView @JvmOverloads constructor(
         if (slotTiles.any { it.id == tile.id }) return false
         slotTiles.add(tile)
         selectedSlotTile = tile
+        freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
         invalidate()
         return true
     }
@@ -171,6 +172,7 @@ class BoardView @JvmOverloads constructor(
             slotTiles.remove(a)
             slotTiles.remove(b)
             selectedSlotTile = null
+            freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
             return a to b
         }
         return null
@@ -179,6 +181,7 @@ class BoardView @JvmOverloads constructor(
     fun removeFromSlot(tile: Tile) {
         slotTiles.remove(tile)
         if (selectedSlotTile?.id == tile.id) selectedSlotTile = null
+        freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
         invalidate()
     }
 
@@ -186,15 +189,14 @@ class BoardView @JvmOverloads constructor(
         val board = board ?: return
         if (width == 0 || height == 0) return
 
-        val hudTopHeight = 56f * resources.displayMetrics.density
-        val hudBottomHeight = 80f * resources.displayMetrics.density
-        val slotAreaHeight = 80f * resources.displayMetrics.density
+        val density = resources.displayMetrics.density
+        val slotAreaHeight = 64f * density
 
         val usableWidth = width.toFloat()
-        val usableHeight = height.toFloat() - hudTopHeight - hudBottomHeight - slotAreaHeight
+        val usableHeight = height.toFloat() - slotAreaHeight
 
         val idealTileW = (usableWidth - 32f) / minOf(board.width + 1, 6)
-        val minTileSize = 48f * resources.displayMetrics.density
+        val minTileSize = 44f * density
         tileWidth = maxOf(idealTileW, minTileSize)
         tileHeight = tileWidth * 1.25f
         tilePadding = tileWidth * 0.1f
@@ -205,13 +207,13 @@ class BoardView @JvmOverloads constructor(
         val totalW = board.width * (tileWidth + tilePadding) + tilePadding
         val totalH = board.height * (tileHeight + tilePadding) + tilePadding + board.maxLayers * layerOffsetY
         boardLeft = (usableWidth - totalW) / 2f
-        boardTop = hudTopHeight + slotAreaHeight + (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers
+        boardTop = (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers + slotAreaHeight
 
-        if (boardLeft < 0) boardLeft = 0f
-        if (boardTop < hudTopHeight + slotAreaHeight) boardTop = hudTopHeight + slotAreaHeight + 8f
+        if (boardLeft < 0f) boardLeft = 0f
+        if (boardTop < slotAreaHeight) boardTop = slotAreaHeight + 8f
 
-        val slotHeight = 56f * resources.displayMetrics.density
-        val slotTop = hudTopHeight + 8f * resources.displayMetrics.density
+        val slotHeight = 52f * density
+        val slotTop = 8f * density
         slotY = slotTop
         slotRect = RectF(
             usableWidth * 0.06f,
@@ -234,11 +236,13 @@ class BoardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        val board = board ?: run {
+            drawBoardBackground(canvas)
+            drawSlotArea(canvas)
+            return
+        }
         drawBoardBackground(canvas)
         drawSlotArea(canvas)
-
-        val board = board ?: return
-        calculateDimensions()
 
         for (layer in 0 until board.maxLayers) {
             for (y in 0 until board.height) {
@@ -1144,8 +1148,18 @@ class BoardView @JvmOverloads constructor(
 
     fun refreshFreeTiles() {
         val b = board ?: return
-        freeTiles = MatchEngine.getFreeTiles(b)
+        freeTiles = MatchEngine.getFreeTiles(b).toSet()
         invalidate()
+    }
+
+    fun getTileCenterX(tile: Tile): Float {
+        val b = board ?: return 0f
+        return boardLeft + tilePadding + tile.x * (tileWidth + tilePadding) + tile.layer * layerOffsetX + tileWidth / 2f
+    }
+
+    fun getTileCenterY(tile: Tile): Float {
+        val b = board ?: return 0f
+        return boardTop + tilePadding + tile.y * (tileHeight + tilePadding) - tile.layer * layerOffsetY + tileHeight / 2f
     }
 
     override fun onDetachedFromWindow() {

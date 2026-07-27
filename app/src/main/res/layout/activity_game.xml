@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_dark_green">
-
-    <com.nakudin.hausamahjong.ui.BoardView
-        android:id="@+id/boardView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:background="@drawable/bg_gradient_dark_green"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/hudTop"
@@ -153,11 +149,16 @@
         </LinearLayout>
     </LinearLayout>
 
+    <com.nakudin.hausamahjong.ui.BoardView
+        android:id="@+id/boardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <LinearLayout
         android:id="@+id/hudBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -220,4 +221,4 @@
             android:elevation="4dp" />
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

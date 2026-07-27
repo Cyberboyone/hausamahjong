@@ -325,47 +325,9 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             .start()
     }
 
-    private fun boardLeftForTile(tile: Tile): Float {
-        val board = board ?: return 0f
-        val hudTopHeight = 56f * resources.displayMetrics.density
-        val hudBottomHeight = 80f * resources.displayMetrics.density
-        val slotAreaHeight = 80f * resources.displayMetrics.density
-        val usableWidth = boardView.width.toFloat()
-        val usableHeight = boardView.height.toFloat() - hudTopHeight - hudBottomHeight - slotAreaHeight
-        val idealTileW = (usableWidth - 32f) / minOf(board.width + 1, 6)
-        val minTileSize = 48f * resources.displayMetrics.density
-        val tw = maxOf(idealTileW, minTileSize)
-        val th = tw * 1.25f
-        val tp = tw * 0.1f
-        val lox = tw * 0.15f
-        val loy = th * 0.15f
-        val totalW = board.width * (tw + tp) + tp
-        val totalH = board.height * (th + tp) + tp + board.maxLayers * loy
-        val bl = maxOf((usableWidth - totalW) / 2f, 0f)
-        val bt = maxOf(hudTopHeight + slotAreaHeight + (usableHeight - totalH) / 2f + loy * board.maxLayers, hudTopHeight + slotAreaHeight + 8f)
-        return bl + tp + tile.x * (tw + tp) + tile.layer * lox + tw / 2f
-    }
+    private fun boardLeftForTile(tile: Tile): Float = boardView.getTileCenterX(tile)
 
-    private fun boardTopForTile(tile: Tile): Float {
-        val board = board ?: return 0f
-        val hudTopHeight = 56f * resources.displayMetrics.density
-        val hudBottomHeight = 80f * resources.displayMetrics.density
-        val slotAreaHeight = 80f * resources.displayMetrics.density
-        val usableWidth = boardView.width.toFloat()
-        val usableHeight = boardView.height.toFloat() - hudTopHeight - hudBottomHeight - slotAreaHeight
-        val idealTileW = (usableWidth - 32f) / minOf(board.width + 1, 6)
-        val minTileSize = 48f * resources.displayMetrics.density
-        val tw = maxOf(idealTileW, minTileSize)
-        val th = tw * 1.25f
-        val tp = tw * 0.1f
-        val lox = tw * 0.15f
-        val loy = th * 0.15f
-        val totalW = board.width * (tw + tp) + tp
-        val totalH = board.height * (th + tp) + tp + board.maxLayers * loy
-        val bl = maxOf((usableWidth - totalW) / 2f, 0f)
-        val bt = maxOf(hudTopHeight + slotAreaHeight + (usableHeight - totalH) / 2f + loy * board.maxLayers, hudTopHeight + slotAreaHeight + 8f)
-        return bt + tp + tile.y * (th + tp) - tile.layer * loy + th / 2f
-    }
+    private fun boardTopForTile(tile: Tile): Float = boardView.getTileCenterY(tile)
 
     private fun checkGameState() {
         val b = board ?: return
