@@ -18,12 +18,9 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="current_level">Level %d</string>
     <string name="levels_completed">%d Levels Completed</string>
-    <string name="game_complete">All 500 Levels Complete!</string>
+    <string name="game_complete">All Levels Complete!</string>
     <string name="all_levels_done">You have mastered every level</string>
     <string name="restart_game">Restart from Level 1</string>
-    <string name="game_complete">All Levels Complete!</string>
-    <string name="all_levels_done">You\'ve mastered all 500 levels</string>
-    <string name="restart_game">Restart Game</string>
 
     <!-- Game -->
     <string name="level">Level</string>
