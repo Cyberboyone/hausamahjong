@@ -536,13 +536,7 @@ class BoardView @JvmOverloads constructor(
             drawCanvasIcon(canvas, symbol, cx, cy, iconSize)
         }
 
-        textPaint.textSize = tileWidth * 0.1f
-        textPaint.color = Color.parseColor("#5D4037")
-        textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
-        val label = symbol.replace("_", " ")
-        if (label.length > 12) textPaint.textSize = tileWidth * 0.08f
-        canvas.drawText(label, cx, rect.bottom - tileHeight * 0.06f, textPaint)
-        textPaint.typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+
     }
 
     private fun drawCanvasIcon(canvas: Canvas, symbol: String, cx: Float, cy: Float, iconSize: Float) {

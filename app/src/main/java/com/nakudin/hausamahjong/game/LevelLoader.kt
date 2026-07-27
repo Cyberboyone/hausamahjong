@@ -39,9 +39,7 @@ object LevelLoader {
         "mai_dawa", "mai_rake", "sarkin_fada",
         "dala_hill", "kano_wall", "kofar_mata_dye", "gidan_rumfa", "kurmi_market",
         "emir_palace_zaria", "zaria_wall", "kajuru_castle", "jemea_palace", "nok_culture",
-        "sultan_palace", "shehu_tomb", "argungu_fishing", "gwandu_palace", "gohir_minaret",
-        "kanta_museum", "bimin_kebbi", "gyaran_gero", "katsina_wall", "kusugu_well",
-        "barewa_college", "emir_palace_katsina", "funtua_mosque", "turunku", "maje_dam"
+        "sultan_palace", "shehu_tomb"
     )
 
     fun loadBoard(data: LevelData, availableSymbols: List<String> = allSymbols): Board {

@@ -60,18 +60,5 @@
     {"id": "jemea_palace", "name_ha": "Gidan Jema'a", "name_en": "Jema'a Emirate Palace", "category": "landmarks", "drawable_ref": "tile_jemea_palace"},
     {"id": "nok_culture", "name_ha": "Nok", "name_en": "Nok Terracotta", "category": "landmarks", "drawable_ref": "tile_nok_culture"},
     {"id": "sultan_palace", "name_ha": "Gidan Sultan", "name_en": "Sultan's Palace, Sokoto", "category": "landmarks", "drawable_ref": "tile_sultan_palace"},
-    {"id": "shehu_tomb", "name_ha": "Kabarin Shehu", "name_en": "Shehu's Tomb, Sokoto", "category": "landmarks", "drawable_ref": "tile_shehu_tomb"},
-    {"id": "argungu_fishing", "name_ha": "Argungu", "name_en": "Argungu Fishing Festival", "category": "landmarks", "drawable_ref": "tile_argungu_fishing"},
-    {"id": "gwandu_palace", "name_ha": "Gidan Gwandu", "name_en": "Gwandu Emirate Palace", "category": "landmarks", "drawable_ref": "tile_gwandu_palace"},
-    {"id": "gohir_minaret", "name_ha": "Gohir", "name_en": "Gohir Minaret, Sokoto", "category": "landmarks", "drawable_ref": "tile_gohir_minaret"},
-    {"id": "kanta_museum", "name_ha": "Kanta", "name_en": "Kanta Museum, Argungu", "category": "landmarks", "drawable_ref": "tile_kanta_museum"},
-    {"id": "bimin_kebbi", "name_ha": "Bimin Kebbi", "name_en": "Bimin Kebbi Mosque", "category": "landmarks", "drawable_ref": "tile_bimin_kebbi"},
-    {"id": "gyaran_gero", "name_ha": "Gyaran Gero", "name_en": "Gyaran Gero, Katsina", "category": "landmarks", "drawable_ref": "tile_gyaran_gero"},
-    {"id": "katsina_wall", "name_ha": "Ƙofar Katsina", "name_en": "Katsina City Wall", "category": "landmarks", "drawable_ref": "tile_katsina_wall"},
-    {"id": "kusugu_well", "name_ha": "Kusugu", "name_en": "Kusugu Well, Daura", "category": "landmarks", "drawable_ref": "tile_kusugu_well"},
-    {"id": "barewa_college", "name_ha": "Barewa", "name_en": "Katsina College", "category": "landmarks", "drawable_ref": "tile_barewa_college"},
-    {"id": "emir_palace_katsina", "name_ha": "Gidan Emir", "name_en": "Emir's Palace, Katsina", "category": "landmarks", "drawable_ref": "tile_emir_palace_katsina"},
-    {"id": "funtua_mosque", "name_ha": "Funtua", "name_en": "Funtua Central Mosque", "category": "landmarks", "drawable_ref": "tile_funtua_mosque"},
-    {"id": "turunku", "name_ha": "Turunku", "name_en": "Turunku Historical Site", "category": "landmarks", "drawable_ref": "tile_turunku"},
-    {"id": "maje_dam", "name_ha": "Maje", "name_en": "Maje Dam, Birnin Kebbi", "category": "landmarks", "drawable_ref": "tile_maje_dam"}
+    {"id": "shehu_tomb", "name_ha": "Kabarin Shehu", "name_en": "Shehu's Tomb, Sokoto", "category": "landmarks", "drawable_ref": "tile_shehu_tomb"}
 ]
