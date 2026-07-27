@@ -56,7 +56,7 @@ class ProfileActivity : AppCompatActivity() {
         val currentLevel = LevelProgressManager.getCurrentLevel()
         val completed = LevelProgressManager.getHighestCompleted()
         val coins = CoinManager.getCoins()
-        val streak = DailyRewardManager.getStreak()
+        val streak = DailyRewardManager.getCurrentStreak()
 
         tvLevel.text = currentLevel.toString()
         tvCoins.text = CoinManager.formatCoins(coins)

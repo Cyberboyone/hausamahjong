@@ -183,9 +183,9 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         val popup = TextView(this).apply {
             text = "+${CoinManager.formatCoins(amount)}"
             textSize = 18f
-            textColor = 0xFFFFD54F.toInt()
+            setTextColor(android.graphics.Color.parseColor("#FFD54F"))
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setShadowLayer(4f, 0f, 0f, 0xFF000000)
+            setShadowLayer(4f, 0f, 0f, android.graphics.Color.BLACK)
         }
         val container = findViewById<android.view.ViewGroup>(R.id.coinContainer)
         container.addView(popup)
@@ -296,9 +296,9 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         val popup = TextView(this).apply {
             text = "COMBO x$count!"
             textSize = 24f
-            textColor = 0xFFFFD54F.toInt()
+            setTextColor(android.graphics.Color.parseColor("#FFD54F"))
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setShadowLayer(6f, 0f, 0f, 0xFF000000)
+            setShadowLayer(6f, 0f, 0f, android.graphics.Color.BLACK)
         }
         val root = findViewById<android.view.ViewGroup>(android.R.id.content)
         val params = android.widget.FrameLayout.LayoutParams(

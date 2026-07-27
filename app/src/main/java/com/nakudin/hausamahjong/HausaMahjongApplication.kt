@@ -5,8 +5,14 @@ import android.content.Intent
 import android.util.Log
 import com.nakudin.hausamahjong.ads.AdManager
 import com.nakudin.hausamahjong.ads.PurchaseManager
+import com.nakudin.hausamahjong.data.AchievementManager
+import com.nakudin.hausamahjong.data.CoinManager
+import com.nakudin.hausamahjong.data.DailyChallengeManager
+import com.nakudin.hausamahjong.data.DailyRewardManager
+import com.nakudin.hausamahjong.data.LevelProgressManager
 import com.nakudin.hausamahjong.data.LevelRepository
 import com.nakudin.hausamahjong.data.ProverbRepository
+import com.nakudin.hausamahjong.data.ShopManager
 import com.nakudin.hausamahjong.data.TileSetRepository
 import com.nakudin.hausamahjong.ui.CrashActivity
 

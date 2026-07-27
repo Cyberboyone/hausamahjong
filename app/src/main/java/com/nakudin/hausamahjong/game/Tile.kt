@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Tile(
     val id: Int,
-    val symbolId: String,
+    var symbolId: String,
     val layer: Int,
     val x: Int,
     val y: Int,

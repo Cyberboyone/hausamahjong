@@ -2,6 +2,7 @@ package com.nakudin.hausamahjong.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.nakudin.hausamahjong.R
 
 object AchievementManager {
     private const val PREFS_NAME = "achievement_data"

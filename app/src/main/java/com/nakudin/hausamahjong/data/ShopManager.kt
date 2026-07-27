@@ -2,6 +2,7 @@ package com.nakudin.hausamahjong.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.nakudin.hausamahjong.R
 
 object ShopManager {
     private const val PREFS_NAME = "shop_data"
