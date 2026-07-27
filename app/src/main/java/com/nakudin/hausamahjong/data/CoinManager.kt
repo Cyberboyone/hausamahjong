@@ -89,4 +89,5 @@ object CoinRewards {
     const val DAILY_STREAK_BONUS = 50
     const val ACHIEVEMENT_UNLOCK = 500
     const val SHUFFLE_COST = 200
+    const val SLOT_RETURN_COST = 500
 }

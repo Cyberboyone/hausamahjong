@@ -185,6 +185,17 @@ class BoardView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun returnAllSlotTiles() {
+        for (tile in slotTiles.toList()) {
+            tile.isInSlot = false
+        }
+        slotTiles.clear()
+        selectedSlotTile = null
+        board?.flipUncoveredTiles()
+        freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
+        invalidate()
+    }
+
     private fun calculateDimensions() {
         val board = board ?: return
         if (width == 0 || height == 0) return

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_dialog_premium"
+    android:padding="24dp">
+
+    <ImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:src="@drawable/ic_shop_slot"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="12dp"
+        android:alpha="0.6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Slot Overflow!"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#FF8A80"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="The slot is full with no matching pair. Return all tiles to the board to continue, or give up the level."
+        android:textSize="13sp"
+        android:textColor="#A5D6A7"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btnReturnCoins"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnWatchAd"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Watch Ad (Free)"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#E8F5E9"
+        android:background="@drawable/bg_button_green"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnGiveUp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Give Up"
+        android:textSize="14sp"
+        android:textColor="#A5D6A7"
+        android:background="@android:color/transparent" />
+
+</LinearLayout>

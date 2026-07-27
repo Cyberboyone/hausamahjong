@@ -224,7 +224,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             }
         } else {
             if (slotTiles.size >= 4) {
-                Toast.makeText(this, "Slot is full!", Toast.LENGTH_SHORT).show()
+                showSlotOverflowDialog()
                 return
             }
 
@@ -237,6 +237,9 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             val boardY = boardTopForTile(tile)
             boardView.animateTileToSlot(tile, boardX, boardY) {
                 boardView.invalidate()
+                if (boardView.getSlotTiles().size >= 4) {
+                    checkSlotOverflow()
+                }
             }
         }
     }
@@ -344,9 +347,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         val slotFull = slotTiles.size >= 4
 
         if (slotFull && noFreeMoves) {
-            gameState?.isFailed = true
-            soundManager?.lose()
-            showLoseDialog()
+            checkSlotOverflow()
             return
         }
 
@@ -360,6 +361,65 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         // Offer shuffle when stuck (no matching pairs on board)
         if (noFreeMoves && slotTiles.isNotEmpty()) {
             offerShuffleDialog()
+        }
+    }
+
+    private fun checkSlotOverflow() {
+        soundManager?.lose()
+        showSlotOverflowDialog()
+    }
+
+    private var slotOverflowDialog: Dialog? = null
+
+    private fun showSlotOverflowDialog() {
+        if (slotOverflowDialog?.isShowing == true) return
+        slotOverflowDialog = Dialog(this).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_slot_overflow)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val btnReturn = findViewById<Button>(R.id.btnReturnCoins)
+            val btnWatch = findViewById<Button>(R.id.btnWatchAd)
+            val btnGiveUp = findViewById<Button>(R.id.btnGiveUp)
+
+            btnReturn.text = "Return All (₦${CoinRewards.SLOT_RETURN_COST})"
+            btnReturn.isEnabled = CoinManager.canAfford(CoinRewards.SLOT_RETURN_COST)
+
+            btnReturn.setOnClickListener {
+                soundManager?.button()
+                dismiss()
+                gameState?.isFailed = false
+                CoinManager.spendCoins(CoinRewards.SLOT_RETURN_COST)
+                boardView.returnAllSlotTiles()
+                boardView.invalidate()
+                Toast.makeText(this@GameActivity, "Tiles returned! -${CoinManager.formatCoins(CoinRewards.SLOT_RETURN_COST)}", Toast.LENGTH_SHORT).show()
+            }
+
+            btnWatch.setOnClickListener {
+                soundManager?.button()
+                dismiss()
+                if (adManager?.isRewardedAdReady() == true) {
+                    adManager?.showRewardedAd(this@GameActivity) {
+                        gameState?.isFailed = false
+                        boardView.returnAllSlotTiles()
+                        boardView.invalidate()
+                        Toast.makeText(this@GameActivity, "Tiles returned! Thanks for watching.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@GameActivity, "Ad not ready", Toast.LENGTH_SHORT).show()
+                    showSlotOverflowDialog()
+                }
+            }
+
+            btnGiveUp.setOnClickListener {
+                soundManager?.button()
+                dismiss()
+                gameState?.isFailed = true
+                showLoseDialog()
+            }
+
+            show()
         }
     }
 
