@@ -215,8 +215,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             handleMatch()
 
             boardView.removeFromSlot(existingMatch)
-            tile.isInSlot = false
-            existingMatch.isInSlot = false
             soundManager?.tileBreak()
             boardView.animateBreak(tile, existingMatch) {
                 boardView.refreshFreeTiles()
@@ -229,8 +227,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             }
 
             boardView.addToSlot(tile)
-            tile.isInSlot = true
-            board!!.flipUncoveredTiles()
             soundManager?.tilePlace()
 
             val boardX = boardLeftForTile(tile)
@@ -253,8 +249,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             boardView.removeFromSlot(tile)
             boardView.removeFromSlot(otherMatch)
 
-            tile.isInSlot = false
-            otherMatch.isInSlot = false
             board!!.removeTiles(tile, otherMatch)
             gameState?.recordMatch(tile, otherMatch, board!!)
             updateUI()
@@ -267,8 +261,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             }
         } else {
             boardView.removeFromSlot(tile)
-            tile.isInSlot = false
-            board!!.flipUncoveredTiles()
             soundManager?.button()
             boardView.invalidate()
         }

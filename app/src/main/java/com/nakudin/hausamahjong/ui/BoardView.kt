@@ -158,7 +158,9 @@ class BoardView @JvmOverloads constructor(
         if (slotTiles.size >= maxSlotSize) return false
         if (slotTiles.any { it.id == tile.id }) return false
         slotTiles.add(tile)
+        tile.isInSlot = true
         selectedSlotTile = tile
+        board?.flipUncoveredTiles()
         freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
         invalidate()
         return true
@@ -171,7 +173,10 @@ class BoardView @JvmOverloads constructor(
             val b = matches[1]
             slotTiles.remove(a)
             slotTiles.remove(b)
+            a.isInSlot = false
+            b.isInSlot = false
             selectedSlotTile = null
+            board?.flipUncoveredTiles()
             freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
             return a to b
         }
@@ -180,7 +185,9 @@ class BoardView @JvmOverloads constructor(
 
     fun removeFromSlot(tile: Tile) {
         slotTiles.remove(tile)
+        tile.isInSlot = false
         if (selectedSlotTile?.id == tile.id) selectedSlotTile = null
+        board?.flipUncoveredTiles()
         freeTiles = MatchEngine.getFreeTiles(board!!).toSet()
         invalidate()
     }
