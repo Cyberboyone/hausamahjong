@@ -42,6 +42,12 @@ class HausaMahjongApplication : Application() {
             LevelRepository.init(this)
             ProverbRepository.init(this)
             TileSetRepository.init(this)
+            LevelProgressManager.init(this)
+            CoinManager.init(this)
+            DailyRewardManager.init(this)
+            AchievementManager.init(this)
+            ShopManager.init(this)
+            DailyChallengeManager.init(this)
         } catch (e: Exception) {
             Log.e("HausaMahjong", "Failed to init repositories", e)
         }

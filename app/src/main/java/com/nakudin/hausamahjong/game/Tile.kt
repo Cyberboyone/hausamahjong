@@ -10,7 +10,9 @@ data class Tile(
     val x: Int,
     val y: Int,
     var isMatched: Boolean = false,
-    var isFaceUp: Boolean = false
+    var isFaceUp: Boolean = false,
+    @kotlinx.serialization.Transient
+    var isInSlot: Boolean = false
 ) {
     fun copyWith(
         id: Int = this.id,
@@ -19,8 +21,9 @@ data class Tile(
         x: Int = this.x,
         y: Int = this.y,
         isMatched: Boolean = this.isMatched,
-        isFaceUp: Boolean = this.isFaceUp
-    ): Tile = Tile(id, symbolId, layer, x, y, isMatched, isFaceUp)
+        isFaceUp: Boolean = this.isFaceUp,
+        isInSlot: Boolean = this.isInSlot
+    ): Tile = Tile(id, symbolId, layer, x, y, isMatched, isFaceUp, isInSlot)
 
     fun matches(other: Tile): Boolean = this.symbolId == other.symbolId
 

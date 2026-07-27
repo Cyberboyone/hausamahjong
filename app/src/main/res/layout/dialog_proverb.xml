@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/proverb_bg">
+    android:padding="28dp"
+    android:background="@drawable/bg_dialog_premium">
 
     <TextView
         android:id="@+id/tvProverbTitle"
@@ -13,27 +13,27 @@
         android:text="@string/proverb_title"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/primary"
+        android:textColor="#FFD54F"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="20dp" />
 
     <TextView
         android:id="@+id/tvProverbHausa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@color/proverb_text"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        android:textColor="#FFD54F"
         android:gravity="center"
-        android:lineSpacingMultiplier="1.2"
+        android:lineSpacingMultiplier="1.3"
         android:layout_marginBottom="12dp" />
 
     <TextView
         android:id="@+id/tvProverbEnglish"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/proverb_english"
+        android:textSize="15sp"
+        android:textColor="#A5D6A7"
         android:gravity="center"
         android:fontFamily="sans-serif-light"
         android:layout_marginBottom="8dp"
@@ -43,8 +43,8 @@
         android:id="@+id/tvMeaning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        android:textColor="#A5D6A7"
         android:gravity="center"
         android:fontFamily="sans-serif-light"
         android:layout_marginBottom="20dp"
@@ -57,18 +57,20 @@
         android:layout_gravity="center_horizontal"
         android:text="@string/show_english"
         android:textSize="14sp"
-        android:textColor="@color/on_primary"
-        android:backgroundTint="@color/primary_light"
-        android:layout_marginBottom="12dp" />
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:layout_marginBottom="12dp"
+        android:elevation="4dp" />
 
     <Button
         android:id="@+id/btnNext"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_gravity="center_horizontal"
         android:text="@string/next_proverb"
         android:textSize="16sp"
-        android:textColor="@color/on_primary"
-        android:backgroundTint="@color/secondary" />
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:elevation="4dp" />
 
 </LinearLayout>

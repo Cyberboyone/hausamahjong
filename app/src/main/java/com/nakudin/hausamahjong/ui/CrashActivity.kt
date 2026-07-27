@@ -15,7 +15,7 @@ class CrashActivity : AppCompatActivity() {
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
             setPadding(48, 48, 48, 48)
-            setBackgroundColor(0xFF1B5E20.toInt())
+            setBackgroundColor(0xFF0D4F24.toInt())
         }
 
         val title = TextView(this).apply {

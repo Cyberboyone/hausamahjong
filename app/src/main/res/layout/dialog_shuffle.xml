@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_dialog_premium"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Moves Available!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFD54F"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shuffle the remaining tiles or watch an ad for a free shuffle."
+        android:textSize="13sp"
+        android:textColor="#A5D6A7"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btnShuffleAction"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Shuffle (₦200)"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnWatchAd"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Watch Ad (Free)"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="#E8F5E9"
+        android:background="@drawable/bg_button_green"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Cancel"
+        android:textSize="14sp"
+        android:textColor="#A5D6A7"
+        android:background="@android:color/transparent" />
+
+</LinearLayout>

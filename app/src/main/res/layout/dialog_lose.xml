@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_wooden">
+    android:padding="28dp"
+    android:background="@drawable/bg_dialog_premium">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -13,9 +13,22 @@
         android:text="@string/lose"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#FFCDD2"
+        android:textColor="#FF8A80"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="3"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't give up!"
+        android:textSize="14sp"
+        android:textColor="#A5D6A7"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="28dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,22 +38,27 @@
 
         <Button
             android:id="@+id/btnMenu"
-            android:layout_width="120dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="48dp"
             android:text="@string/menu"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
-            android:background="@drawable/bg_wooden_button_rect"
-            android:layout_marginEnd="8dp" />
+            android:background="@drawable/bg_button_green"
+            android:layout_marginEnd="8dp"
+            android:elevation="4dp" />
 
         <Button
             android:id="@+id/btnTryAgain"
-            android:layout_width="120dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="48dp"
             android:text="@string/try_again"
             android:textSize="14sp"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/bg_wooden_button_rect" />
+            android:textColor="#0D4F24"
+            android:background="@drawable/bg_button_gold"
+            android:layout_marginStart="8dp"
+            android:elevation="4dp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -39,7 +39,7 @@ class BoardView @JvmOverloads constructor(
     private var freeTiles: List<Tile> = emptyList()
 
     private val slotTiles = mutableListOf<Tile>()
-    private val maxSlotSize = 7
+    private val maxSlotSize = 4
 
     private var tileWidth = 0f
     private var tileHeight = 0f
@@ -55,6 +55,7 @@ class BoardView @JvmOverloads constructor(
     private var selectedSlotTile: Tile? = null
 
     private var animatingTile: AnimatingTile? = null
+    private var flippingTile: FlippingTile? = null
     private var breakingTiles: Pair<Tile, Tile>? = null
     private var breakAnimProgress = 0f
 
@@ -128,6 +129,12 @@ class BoardView @JvmOverloads constructor(
         this.freeTiles = MatchEngine.getFreeTiles(board)
         slotTiles.clear()
         selectedSlotTile = null
+        // Restore slot tiles from board state
+        for (tile in board.tiles) {
+            if (tile.isInSlot) {
+                slotTiles.add(tile)
+            }
+        }
         calculateDimensions()
         invalidate()
     }
@@ -186,25 +193,30 @@ class BoardView @JvmOverloads constructor(
         val usableWidth = width.toFloat()
         val usableHeight = height.toFloat() - hudTopHeight - hudBottomHeight - slotAreaHeight
 
-        tileWidth = (usableWidth - (board.width + 1) * 4f) / board.width
+        val idealTileW = (usableWidth - 32f) / minOf(board.width + 1, 6)
+        val minTileSize = 48f * resources.displayMetrics.density
+        tileWidth = maxOf(idealTileW, minTileSize)
         tileHeight = tileWidth * 1.25f
-        tilePadding = tileWidth * 0.06f
+        tilePadding = tileWidth * 0.1f
         cornerRadius = tileWidth * 0.08f
-        layerOffsetX = tileWidth * 0.07f
-        layerOffsetY = tileHeight * 0.07f
+        layerOffsetX = tileWidth * 0.15f
+        layerOffsetY = tileHeight * 0.15f
 
         val totalW = board.width * (tileWidth + tilePadding) + tilePadding
         val totalH = board.height * (tileHeight + tilePadding) + tilePadding + board.maxLayers * layerOffsetY
         boardLeft = (usableWidth - totalW) / 2f
         boardTop = hudTopHeight + slotAreaHeight + (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers
 
-        val slotHeight = 60f * resources.displayMetrics.density
+        if (boardLeft < 0) boardLeft = 0f
+        if (boardTop < hudTopHeight + slotAreaHeight) boardTop = hudTopHeight + slotAreaHeight + 8f
+
+        val slotHeight = 56f * resources.displayMetrics.density
         val slotTop = hudTopHeight + 8f * resources.displayMetrics.density
         slotY = slotTop
         slotRect = RectF(
-            usableWidth * 0.08f,
+            usableWidth * 0.06f,
             slotTop,
-            usableWidth * 0.92f,
+            usableWidth * 0.94f,
             slotTop + slotHeight
         )
     }
@@ -238,6 +250,7 @@ class BoardView @JvmOverloads constructor(
         }
 
         drawAnimatingTile(canvas)
+        drawFlippingTile(canvas)
         drawParticles(canvas)
 
         if (!pulseAnimator.isRunning && selectedSlotTile != null) {
@@ -380,11 +393,23 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun drawTile(canvas: Canvas, tile: Tile, layer: Int) {
-        if (tile.isMatched) return
+        if (tile.isMatched || tile.isInSlot) return
+
+        val isFlipping = flippingTile?.tile?.id == tile.id
+        val flipProgress = if (isFlipping) flippingTile?.progress ?: 0f else 0f
 
         val left = boardLeft + tilePadding + tile.x * (tileWidth + tilePadding) + layer * layerOffsetX
         val top = boardTop + tilePadding + tile.y * (tileHeight + tilePadding) - layer * layerOffsetY
-        val rect = RectF(left, top, left + tileWidth, top + tileHeight)
+        var renderWidth = tileWidth
+        var renderLeft = left
+        var showBack = false
+        if (isFlipping) {
+            val scaled = 1f - flipProgress * 2f
+            showBack = scaled > 0f
+            renderWidth = tileWidth * kotlin.math.abs(scaled)
+            renderLeft = left + (tileWidth - renderWidth) / 2f
+        }
+        val rect = RectF(renderLeft, top, renderLeft + renderWidth, top + tileHeight)
 
         canvas.save()
 
@@ -404,7 +429,7 @@ class BoardView @JvmOverloads constructor(
         canvas.drawRoundRect(shadowRect, cornerRadius, cornerRadius, shadowPaint)
 
         val isFree = tile in freeTiles
-        val isFaceUp = tile.isFaceUp
+        val isFaceUp = if (isFlipping) !showBack else tile.isFaceUp
 
         if (isFaceUp) {
             tileBgPaint.shader = LinearGradient(
@@ -839,6 +864,53 @@ class BoardView @JvmOverloads constructor(
         canvas.restore()
     }
 
+    private fun drawFlippingTile(canvas: Canvas) {
+        val flip = flippingTile ?: return
+        val tile = flip.tile
+        val cx = flip.cx
+        val cy = flip.cy
+        val progress = flip.progress
+
+        val scaleX = kotlin.math.abs(1f - progress * 2f)
+        if (scaleX < 0.01f) return
+        val halfW = tileWidth * scaleX / 2f
+        val tileRect = RectF(cx - halfW, cy - tileHeight / 2, cx + halfW, cy + tileHeight / 2)
+
+        val showBack = (1f - progress * 2f) > 0f
+
+        canvas.save()
+        if (showBack) {
+            tileBgPaint.shader = null
+            tileBgPaint.color = Color.parseColor("#D7CCC8")
+            canvas.drawRoundRect(tileRect, cornerRadius, cornerRadius, tileBgPaint)
+            val innerRect = RectF(tileRect.left + tileWidth * 0.1f, tileRect.top + tileHeight * 0.1f,
+                tileRect.right - tileWidth * 0.1f, tileRect.bottom - tileHeight * 0.1f)
+            val patternPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#8D6E63"); style = Paint.Style.STROKE; strokeWidth = 1.5f
+            }
+            canvas.drawRoundRect(innerRect, 4f, 4f, patternPaint)
+        } else {
+            tileBgPaint.shader = LinearGradient(
+                tileRect.left, tileRect.top, tileRect.left, tileRect.bottom,
+                Color.parseColor("#FFF8E1"), Color.parseColor("#F5E6D3"), Shader.TileMode.CLAMP
+            )
+            canvas.drawRoundRect(tileRect, cornerRadius, cornerRadius, tileBgPaint)
+            tileBgPaint.shader = null
+            val bitmap = getTileBitmap(tile.symbolId)
+            if (bitmap != null) {
+                val imgSize = tileWidth * scaleX - tileWidth * 0.1f
+                val imgRect = RectF(cx - imgSize / 2, cy - imgSize / 2, cx + imgSize / 2, cy + imgSize / 2)
+                canvas.drawBitmap(bitmap, null, imgRect, slotTilePaint)
+            } else {
+                drawCanvasIcon(canvas, tile.symbolId, cx, cy, tileWidth * 0.4f * scaleX)
+            }
+        }
+        canvas.drawRoundRect(tileRect, cornerRadius, cornerRadius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#A1887F"); style = Paint.Style.STROKE; strokeWidth = 2f
+        })
+        canvas.restore()
+    }
+
     private fun drawParticles(canvas: Canvas) {
         val iter = particles.iterator()
         while (iter.hasNext()) {
@@ -889,6 +961,8 @@ class BoardView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                if (animatingTile != null || flippingTile != null) return false
+
                 val slotTile = getSlotTileAtPosition(event.x, event.y)
                 if (slotTile != null) {
                     soundManager?.tileClick()
@@ -898,6 +972,11 @@ class BoardView @JvmOverloads constructor(
 
                 val boardTile = getTileAtPosition(event.x, event.y)
                 if (boardTile != null && boardTile in freeTiles) {
+                    if (!boardTile.isFaceUp) {
+                        soundManager?.select()
+                        flipTile(boardTile)
+                        return true
+                    }
                     soundManager?.tileClick()
                     listener?.onTileClicked(boardTile)
                     return true
@@ -1038,6 +1117,31 @@ class BoardView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun flipTile(tile: Tile) {
+        val left = boardLeft + tilePadding + tile.x * (tileWidth + tilePadding) + tile.layer * layerOffsetX
+        val top = boardTop + tilePadding + tile.y * (tileHeight + tilePadding) - tile.layer * layerOffsetY
+        val cx = left + tileWidth / 2
+        val cy = top + tileHeight / 2
+
+        flippingTile = FlippingTile(tile, cx, cy)
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 300
+            addUpdateListener {
+                flippingTile?.progress = it.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    tile.isFaceUp = true
+                    flippingTile = null
+                    refreshFreeTiles()
+                    invalidate()
+                }
+            })
+            start()
+        }
+    }
+
     fun refreshFreeTiles() {
         val b = board ?: return
         freeTiles = MatchEngine.getFreeTiles(b)
@@ -1049,6 +1153,13 @@ class BoardView @JvmOverloads constructor(
         pulseAnimator.cancel()
         slotPulseAnimator.cancel()
     }
+
+    data class FlippingTile(
+        val tile: Tile,
+        val cx: Float,
+        val cy: Float,
+        var progress: Float = 0f
+    )
 
     data class AnimatingTile(
         val tile: Tile,

@@ -10,6 +10,7 @@ import java.io.InputStreamReader
 
 object LevelRepository {
     private var levels: List<LevelData> = emptyList()
+    private var maxProceduralLevel = 500
 
     fun init(context: Context) {
         val inputStream = context.resources.openRawResource(R.raw.levels)
@@ -21,14 +22,19 @@ object LevelRepository {
     }
 
     fun getLevel(levelNumber: Int): LevelData? {
-        return levels.find { it.levelNumber == levelNumber }
+        val staticLevel = levels.find { it.levelNumber == levelNumber }
+        if (staticLevel != null) return staticLevel
+        if (levelNumber <= maxProceduralLevel) {
+            return LevelLoader.generateLevel(levelNumber)
+        }
+        return null
     }
 
     fun getLevels(): List<LevelData> = levels.toList()
 
-    fun getMaxLevel(): Int = levels.maxOfOrNull { it.levelNumber } ?: 1
+    fun getMaxLevel(): Int = maxOf(levels.maxOfOrNull { it.levelNumber } ?: 1, maxProceduralLevel)
 
-    fun getLevelCount(): Int = levels.size
+    fun getLevelCount(): Int = maxProceduralLevel
 
     fun isLevelAvailable(levelNumber: Int, highestCompleted: Int): Boolean {
         return levelNumber <= highestCompleted + 1

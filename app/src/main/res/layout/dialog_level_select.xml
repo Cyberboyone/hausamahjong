@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@color/surface">
+    android:background="@drawable/bg_dialog_premium">
 
     <TextView
         android:layout_width="wrap_content"
@@ -12,7 +12,7 @@
         android:text="@string/level_select"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/primary"
+        android:textColor="#FFD54F"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp" />
 
@@ -20,16 +20,18 @@
         android:id="@+id/rvLevels"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:clipToPadding="false"
+        android:padding="4dp" />
 
     <Button
         android:id="@+id/btnClose"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
         android:text="@string/menu"
         android:textSize="16sp"
-        android:textColor="@color/on_primary"
-        android:backgroundTint="@color/primary" />
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:elevation="4dp" />
 
 </LinearLayout>

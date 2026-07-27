@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_wooden">
+    android:padding="28dp"
+    android:background="@drawable/bg_dialog_premium">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,39 +13,43 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="#FFD54F"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="3"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="28dp" />
 
     <Button
         android:id="@+id/btnResume"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
         android:text="@string/resume"
         android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/bg_wooden_button_rect"
-        android:layout_marginBottom="12dp" />
+        android:textColor="#0D4F24"
+        android:background="@drawable/bg_button_gold"
+        android:layout_marginBottom="12dp"
+        android:elevation="4dp" />
 
     <Button
         android:id="@+id/btnRestart"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
         android:text="@string/restart"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
-        android:background="@drawable/bg_wooden_button_rect"
-        android:layout_marginBottom="12dp" />
+        android:background="@drawable/bg_button_green"
+        android:layout_marginBottom="12dp"
+        android:elevation="4dp" />
 
     <Button
         android:id="@+id/btnMenu"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
         android:text="@string/menu"
         android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/bg_wooden_button_rect" />
+        android:textColor="#A5D6A7"
+        android:background="@drawable/bg_button_green"
+        android:elevation="4dp" />
 
 </LinearLayout>

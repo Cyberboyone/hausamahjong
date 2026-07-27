@@ -7,19 +7,24 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.nakudin.hausamahjong.R
-import com.nakudin.hausamahjong.data.LevelRepository
+import com.nakudin.hausamahjong.data.CoinManager
+import com.nakudin.hausamahjong.data.DailyRewardManager
+import com.nakudin.hausamahjong.data.LevelProgressManager
 
-class MenuActivity : AppCompatActivity() {
+class MenuActivity : AppCompatActivity(), CoinManager.OnCoinChangeListener {
 
     private lateinit var tvTitle: TextView
     private lateinit var tvSubtitle: TextView
+    private lateinit var tvCurrentLevel: TextView
+    private lateinit var tvCoins: TextView
     private lateinit var btnPlay: Button
-    private lateinit var btnLevelSelect: Button
-    private lateinit var btnSettings: Button
+    private lateinit var btnShop: ImageButton
+    private lateinit var btnDailyReward: ImageButton
+    private lateinit var btnProfile: ImageButton
+    private lateinit var btnSettings: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,36 +32,59 @@ class MenuActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.decorView.systemUiVisibility = (
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         )
 
         setContentView(R.layout.activity_menu)
 
         initViews()
         setupClickListeners()
+        updateLevelDisplay()
+        updateCoinDisplay()
+        CoinManager.addListener(this)
     }
 
     private fun initViews() {
         tvTitle = findViewById(R.id.tvTitle)
         tvSubtitle = findViewById(R.id.tvSubtitle)
+        tvCurrentLevel = findViewById(R.id.tvCurrentLevel)
+        tvCoins = findViewById(R.id.tvCoins)
         btnPlay = findViewById(R.id.btnPlay)
-        btnLevelSelect = findViewById(R.id.btnLevelSelect)
+        btnShop = findViewById(R.id.btnShop)
+        btnDailyReward = findViewById(R.id.btnDailyReward)
+        btnProfile = findViewById(R.id.btnProfile)
         btnSettings = findViewById(R.id.btnSettings)
     }
 
     private fun setupClickListeners() {
         btnPlay.setOnClickListener {
-            val intent = Intent(this, GameActivity::class.java)
-            intent.putExtra("LEVEL_NUMBER", 1)
-            startActivity(intent)
+            if (LevelProgressManager.isGameComplete()) {
+                LevelProgressManager.resetProgress()
+                val intent = Intent(this, GameActivity::class.java)
+                intent.putExtra("LEVEL_NUMBER", 1)
+                startActivity(intent)
+            } else {
+                val level = LevelProgressManager.getCurrentLevel()
+                val intent = Intent(this, GameActivity::class.java)
+                intent.putExtra("LEVEL_NUMBER", level)
+                startActivity(intent)
+            }
         }
 
-        btnLevelSelect.setOnClickListener {
-            showLevelSelectDialog()
+        btnShop.setOnClickListener {
+            showShopDialog()
+        }
+
+        btnDailyReward.setOnClickListener {
+            claimDailyReward()
+        }
+
+        btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
 
         btnSettings.setOnClickListener {
@@ -64,30 +92,49 @@ class MenuActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLevelSelectDialog() {
-        try {
-            val dialog = android.app.Dialog(this)
-            dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
-            dialog.setContentView(R.layout.dialog_level_select)
-            dialog.setCancelable(true)
+    private fun showShopDialog() {
+        startActivity(Intent(this, ShopActivity::class.java))
+    }
 
-            val rvLevels = dialog.findViewById<RecyclerView>(R.id.rvLevels)
-            val btnClose = dialog.findViewById<Button>(R.id.btnClose)
+    private fun claimDailyReward() {
+        if (DailyRewardManager.canClaimToday()) {
+            val reward = DailyRewardManager.claimDailyReward()
+            Toast.makeText(
+                this,
+                "Daily Reward: +${CoinManager.formatCoins(reward)}\nStreak: ${DailyRewardManager.getCurrentStreak()} days",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            Toast.makeText(
+                this,
+                "Daily reward already claimed today! Come back tomorrow.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
-            val adapter = LevelSelectAdapter { levelNumber ->
-                dialog.dismiss()
-                val intent = Intent(this, GameActivity::class.java)
-                intent.putExtra("LEVEL_NUMBER", levelNumber)
-                startActivity(intent)
+    private fun updateCoinDisplay() {
+        tvCoins.text = CoinManager.formatCoins(CoinManager.getCoins())
+    }
+
+    override fun onCoinsChanged(newAmount: Int, change: Int) {
+        runOnUiThread { updateCoinDisplay() }
+    }
+
+    private fun updateLevelDisplay() {
+        val isComplete = LevelProgressManager.isGameComplete()
+        if (isComplete) {
+            tvCurrentLevel.text = getString(R.string.game_complete)
+            tvSubtitle.text = getString(R.string.all_levels_done)
+            btnPlay.text = getString(R.string.restart_game)
+        } else {
+            val currentLevel = LevelProgressManager.getCurrentLevel()
+            val completed = LevelProgressManager.getHighestCompleted()
+            tvCurrentLevel.text = getString(R.string.current_level, currentLevel)
+            if (completed > 0) {
+                tvSubtitle.text = getString(R.string.levels_completed, completed)
             }
-
-            rvLevels.layoutManager = GridLayoutManager(this, 4)
-            rvLevels.adapter = adapter
-
-            btnClose.setOnClickListener { dialog.dismiss() }
-            dialog.show()
-        } catch (e: Exception) {
-            android.widget.Toast.makeText(this, "Could not load levels", android.widget.Toast.LENGTH_SHORT).show()
+            btnPlay.text = getString(R.string.play)
         }
     }
 
@@ -124,36 +171,15 @@ class MenuActivity : AppCompatActivity() {
         resources.updateConfiguration(config, resources.displayMetrics)
         recreate()
     }
-}
 
-class LevelSelectAdapter(
-    private val onLevelClick: (Int) -> Unit
-) : RecyclerView.Adapter<LevelSelectAdapter.LevelViewHolder>() {
-
-    private val levels = LevelRepository.getLevels()
-
-    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): LevelViewHolder {
-        val view = android.view.LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_level, parent, false)
-        return LevelViewHolder(view)
+    override fun onResume() {
+        super.onResume()
+        updateLevelDisplay()
+        updateCoinDisplay()
     }
 
-    override fun onBindViewHolder(holder: LevelViewHolder, position: Int) {
-        val level = levels[position]
-        holder.bind(level.levelNumber)
-    }
-
-    override fun getItemCount() = levels.size
-
-    inner class LevelViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
-        private val tvLevelNumber: TextView = itemView.findViewById(R.id.tvLevelNumber)
-        private val tvLevelName: TextView = itemView.findViewById(R.id.tvLevelName)
-
-        fun bind(levelNumber: Int) {
-            tvLevelNumber.text = levelNumber.toString()
-            val level = LevelRepository.getLevel(levelNumber)
-            tvLevelName.text = level?.name_ha ?: "Mataki $levelNumber"
-            itemView.setOnClickListener { onLevelClick(levelNumber) }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        CoinManager.removeListener(this)
     }
 }
