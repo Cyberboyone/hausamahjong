@@ -95,7 +95,7 @@
                     android:layout_width="0dp"
                     android:layout_height="8dp"
                     android:layout_gravity="center_vertical"
-                    android:background="#FFD54F" />
+                    android:background="#FFFFFF" />
 
                 <ImageView
                     android:id="@+id/ivLoadingTile"
