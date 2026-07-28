@@ -225,7 +225,7 @@ class BoardView @JvmOverloads constructor(
         val totalW = board.width * (tileWidth + tilePadding) + tilePadding
         val totalH = board.height * (tileHeight + tilePadding) + tilePadding + board.maxLayers * layerOffsetY
         boardLeft = (usableWidth - totalW) / 2f
-        boardTop = (usableHeight - totalH) / 2f + layerOffsetY * board.maxLayers + slotAreaHeight
+        boardTop = (usableHeight - totalH) / 2f + slotAreaHeight + layerOffsetY * (board.maxLayers - 1)
 
         if (boardLeft < 0f) boardLeft = 0f
         if (boardTop < slotAreaHeight) boardTop = slotAreaHeight + 8f
@@ -856,10 +856,17 @@ class BoardView @JvmOverloads constructor(
         val progress = anim.progress
         val x = anim.startX + (anim.endX - anim.startX) * progress
         val y = anim.startY + (anim.endY - anim.startY) * progress
-        val scale = 1f + (1f - progress) * 0.3f
-        canvas.scale(scale, scale, x, y)
 
-        val tileRect = RectF(x - tileWidth / 2, y - tileHeight / 2, x + tileWidth / 2, y + tileHeight / 2)
+        val slotTileW = (slotRect.width() - 20f) / maxSlotSize
+        val slotTileH = slotTileW * 1.2f
+        val finalW = slotTileW * 0.9f
+        val finalH = slotTileH
+        val currentW = tileWidth + (finalW - tileWidth) * progress
+        val currentH = tileHeight + (finalH - tileHeight) * progress
+        val halfW = currentW / 2f
+        val halfH = currentH / 2f
+
+        val tileRect = RectF(x - halfW, y - halfH, x + halfW, y + halfH)
 
         tileBgPaint.shader = LinearGradient(
             tileRect.left, tileRect.top, tileRect.left, tileRect.bottom,
@@ -875,12 +882,12 @@ class BoardView @JvmOverloads constructor(
         })
 
         if (bitmap != null) {
-            val padding = tileWidth * 0.08f
-            val imgSize = tileWidth - padding * 2
+            val padding = currentW * 0.08f
+            val imgSize = currentW - padding * 2
             val imgRect = RectF(x - imgSize / 2, y - imgSize / 2, x + imgSize / 2, y + imgSize / 2)
             canvas.drawBitmap(bitmap, null, imgRect, slotTilePaint)
         } else {
-            drawCanvasIcon(canvas, anim.tile.symbolId, x, y, tileWidth * 0.5f)
+            drawCanvasIcon(canvas, anim.tile.symbolId, x, y, currentW * 0.5f)
         }
 
         canvas.restore()
