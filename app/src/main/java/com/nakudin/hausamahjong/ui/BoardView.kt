@@ -215,26 +215,24 @@ class BoardView @JvmOverloads constructor(
         val usableWidth = width.toFloat()
         val usableHeight = height.toFloat() - slotAreaHeight
 
-        val idealTileW = (usableWidth - 32f) / minOf(board.width + 1, 6)
-        val minTileSize = 44f * density
+        layerOffsetX = 4f * density
+        layerOffsetY = 4f * density
+
+        val totalLayerW = (board.maxLayers - 1) * layerOffsetX
+        val totalLayerH = (board.maxLayers - 1) * layerOffsetY
+        val idealTileW = (usableWidth - 16f - totalLayerW) / (board.width * 1.15f)
+        val minTileSize = 40f * density
         tileWidth = maxOf(idealTileW, minTileSize)
-        tileHeight = tileWidth * 1.25f
-        tilePadding = tileWidth * 0.1f
+        tileHeight = tileWidth * 1.3f
+        tilePadding = tileWidth * 0.12f
         cornerRadius = tileWidth * 0.08f
-        layerOffsetX = tileWidth * 0.15f
-        layerOffsetY = tileHeight * 0.15f
 
         val slotHeight = 52f * density
         slotTileH = slotHeight - 10f * density
-        slotTileW = slotTileH / 1.2f
+        slotTileW = slotTileH / 1.3f
 
-        val baseW = board.width * tileWidth + (board.width - 1) * tilePadding
-        val layerW = (board.maxLayers - 1) * layerOffsetX
-        val totalW = baseW + layerW + 4f * tilePadding
-
-        val baseH = board.height * tileHeight + (board.height - 1) * tilePadding
-        val layerH = (board.maxLayers - 1) * layerOffsetY
-        val totalH = baseH + layerH + 4f * tilePadding
+        val totalW = board.width * (tileWidth + tilePadding) + totalLayerW
+        val totalH = board.height * (tileHeight + tilePadding) + totalLayerH
 
         boardLeft = (usableWidth - totalW) / 2f
         boardTop = slotAreaHeight + (usableHeight - totalH) / 2f

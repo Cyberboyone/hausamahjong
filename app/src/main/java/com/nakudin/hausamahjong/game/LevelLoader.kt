@@ -131,10 +131,11 @@ object LevelLoader {
             val symbolRng = Random(seed + 1)
             val shuffledSymbolsForLevel = levelSymbols.shuffled(symbolRng)
 
-            for (i in 0 until sizeLimit step 2) {
-                val symbol = shuffledSymbolsForLevel[(i / 2) % shuffledSymbolsForLevel.size]
+            val halfSize = sizeLimit / 2
+            for (i in 0 until halfSize) {
+                val symbol = shuffledSymbolsForLevel[i % shuffledSymbolsForLevel.size]
                 val pos1 = shuffledPositions[i]
-                val pos2 = shuffledPositions[i + 1]
+                val pos2 = shuffledPositions[i + halfSize]
                 tileData.add(TileData(symbol, pos1.third, pos1.first, pos1.second))
                 tileData.add(TileData(symbol, pos2.third, pos2.first, pos2.second))
             }
@@ -179,10 +180,11 @@ object LevelLoader {
         val symbolRng = Random(seed + 1)
         val shuffledSymbolsForLevel = levelSymbols.shuffled(symbolRng)
 
-        for (i in 0 until sizeLimit step 2) {
-            val symbol = shuffledSymbolsForLevel[(i / 2) % shuffledSymbolsForLevel.size]
+        val halfSize = sizeLimit / 2
+        for (i in 0 until halfSize) {
+            val symbol = shuffledSymbolsForLevel[i % shuffledSymbolsForLevel.size]
             val pos1 = shuffledPositions[i]
-            val pos2 = shuffledPositions[i + 1]
+            val pos2 = shuffledPositions[i + halfSize]
             tileData.add(TileData(symbol, pos1.third, pos1.first, pos1.second))
             tileData.add(TileData(symbol, pos2.third, pos2.first, pos2.second))
         }
