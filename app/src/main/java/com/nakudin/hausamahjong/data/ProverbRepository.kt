@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import kotlin.random.Random
 
 @Serializable
 data class Proverb(
@@ -16,7 +17,8 @@ data class Proverb(
 
 object ProverbRepository {
     private var proverbs: List<Proverb> = emptyList()
-    private var currentIndex = 0
+    private var shuffledOrder: MutableList<Int> = mutableListOf()
+    private var cycleIndex = 0
 
     fun init(context: Context) {
         val inputStream = context.resources.openRawResource(R.raw.proverbs)
@@ -25,6 +27,13 @@ object ProverbRepository {
         reader.close()
 
         proverbs = Json.decodeFromString<List<Proverb>>(jsonString)
+        reshuffle()
+    }
+
+    private fun reshuffle() {
+        shuffledOrder = (proverbs.indices).toMutableList()
+        shuffledOrder.shuffle(Random(System.nanoTime()))
+        cycleIndex = 0
     }
 
     fun getNextProverb(): Proverb {
@@ -35,8 +44,11 @@ object ProverbRepository {
                 meaning_note = "Patience heals all troubles"
             )
         }
-        val proverb = proverbs[currentIndex % proverbs.size]
-        currentIndex++
+        if (cycleIndex >= shuffledOrder.size) {
+            reshuffle()
+        }
+        val proverb = proverbs[shuffledOrder[cycleIndex]]
+        cycleIndex++
         return proverb
     }
 

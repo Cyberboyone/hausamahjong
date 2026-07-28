@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <size
+        android:width="120dp"
+        android:height="120dp" />
+    <path
+        android:fillColor="#0DFFFFFF"
+        android:pathData="M20,10 Q25,30 20,50 Q18,60 22,80 Q24,90 20,110 M20,50 Q35,45 50,50 M20,30 Q35,25 48,30 M20,70 Q35,65 48,70 M22,15 L18,5 M22,15 L28,8 M22,35 L16,28 M22,35 L30,28 M22,55 L16,48 M22,55 L30,48 M22,75 L16,68 M22,75 L30,68 M22,95 L18,88 M22,95 L28,88" />
+    <path
+        android:fillColor="#0AFFFFFF"
+        android:pathData="M80,20 Q85,40 80,60 Q78,70 82,90 Q84,100 80,120 M80,60 Q95,55 110,60 M80,40 Q95,35 108,40 M80,80 Q95,75 108,80 M82,25 L78,15 M82,25 L88,18 M82,45 L76,38 M82,45 L90,38 M82,65 L76,58 M82,65 L90,58 M82,85 L76,78 M82,85 L90,78" />
+</shape>

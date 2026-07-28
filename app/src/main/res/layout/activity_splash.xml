@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="Karin Magana"
             android:textSize="16sp"
-            android:textColor="#A5D6A7"
+            android:textColor="#80CBC4"
             android:letterSpacing="0.15"
             android:layout_marginBottom="60dp" />
 
@@ -73,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textColor="#A5D6A7"
+                android:textColor="#80CBC4"
                 android:gravity="center"
                 android:lineSpacingExtra="2dp"
                 android:layout_marginBottom="40dp" />
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:text="Loading..."
                 android:textSize="12sp"
-                android:textColor="#A5D6A7"
+                android:textColor="#80CBC4"
                 android:letterSpacing="0.1" />
         </LinearLayout>
 

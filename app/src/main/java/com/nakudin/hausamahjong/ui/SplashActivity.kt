@@ -26,10 +26,16 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var tvProverb: TextView
     private lateinit var tvProverbMeaning: TextView
     private lateinit var loadingBar: View
+    private lateinit var loadingBarBg: View
     private lateinit var ivLoadingTile: ImageView
     private lateinit var tvLoading: TextView
 
     private val handler = Handler(Looper.getMainLooper())
+
+    private val TOTAL_SPLASH_MS = 5000L
+    private val ENTRANCE_MS = 1500L
+    private val PROVERB_DELAY_MS = 600L
+    private val LOADING_MS = TOTAL_SPLASH_MS - ENTRANCE_MS - PROVERB_DELAY_MS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +48,7 @@ class SplashActivity : AppCompatActivity() {
         tvProverb = findViewById(R.id.tvProverb)
         tvProverbMeaning = findViewById(R.id.tvProverbMeaning)
         loadingBar = findViewById(R.id.loadingBar)
+        loadingBarBg = findViewById(R.id.loadingBarBg)
         ivLoadingTile = findViewById(R.id.ivLoadingTile)
         tvLoading = findViewById(R.id.tvLoading)
 
@@ -80,11 +87,11 @@ class SplashActivity : AppCompatActivity() {
 
         handler.postDelayed({
             showProverbAndLoad()
-        }, 1500)
+        }, ENTRANCE_MS)
     }
 
     private fun showProverbAndLoad() {
-        val proverb = ProverbRepository.getRandomProverb()
+        val proverb = ProverbRepository.getNextProverb()
         tvProverb.text = "\"${proverb.hausa_text}\""
         tvProverbMeaning.text = proverb.meaning_note
 
@@ -100,7 +107,7 @@ class SplashActivity : AppCompatActivity() {
 
         handler.postDelayed({
             startLoadingAnimation()
-        }, 600)
+        }, PROVERB_DELAY_MS)
     }
 
     private fun startLoadingAnimation() {
@@ -112,23 +119,28 @@ class SplashActivity : AppCompatActivity() {
             return
         }
 
-        val tileTravel = parentWidth - ivLoadingTile.width.toFloat()
+        val tileWidth = ivLoadingTile.width.toFloat()
+        val tileTravel = parentWidth - tileWidth
 
         val tileAnim = ObjectAnimator.ofFloat(ivLoadingTile, "translationX", 0f, tileTravel)
-        tileAnim.duration = 2800
+        tileAnim.duration = LOADING_MS
         tileAnim.interpolator = LinearInterpolator()
 
-        val progressAnim = ObjectAnimator.ofFloat(loadingBar, "layout_width", 0f, parentWidth)
-        progressAnim.duration = 2800
-        progressAnim.interpolator = LinearInterpolator()
+        tileAnim.addUpdateListener {
+            val fraction = it.animatedFraction
+            val tileX = tileWidth / 2f + fraction * tileTravel
+            val lp = loadingBar.layoutParams
+            lp.width = tileX.toInt()
+            loadingBar.requestLayout()
+        }
 
         val shimmer = ObjectAnimator.ofFloat(ivLoadingTile, "rotation", 0f, 360f)
         shimmer.duration = 1400
-        shimmer.repeatCount = 1
+        shimmer.repeatCount = (LOADING_MS / 1400).toInt()
         shimmer.interpolator = LinearInterpolator()
 
         val set = AnimatorSet()
-        set.playTogether(tileAnim, progressAnim, shimmer)
+        set.playTogether(tileAnim, shimmer)
         set.start()
 
         set.addListener(object : android.animation.AnimatorListenerAdapter() {

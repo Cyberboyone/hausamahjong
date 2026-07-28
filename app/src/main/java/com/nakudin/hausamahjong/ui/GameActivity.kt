@@ -37,8 +37,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     private lateinit var tvCoins: TextView
     private lateinit var btnHint: ImageButton
     private lateinit var btnUndo: ImageButton
-    private lateinit var btnShuffle: ImageButton
-    private lateinit var btnSettings: ImageButton
+    private lateinit var btnMenuBack: ImageButton
 
     private var board: Board? = null
     private var gameState: GameState? = null
@@ -99,8 +98,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         tvCoins = findViewById(R.id.tvCoins)
         btnHint = findViewById(R.id.btnHint)
         btnUndo = findViewById(R.id.btnUndo)
-        btnShuffle = findViewById(R.id.btnShuffle)
-        btnSettings = findViewById(R.id.btnSettings)
+        btnMenuBack = findViewById(R.id.btnMenuBack)
 
         CoinManager.addListener(this)
         AchievementManager.addListener(this)
@@ -136,11 +134,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             soundManager?.button()
             performUndo()
         }
-        btnShuffle.setOnClickListener {
-            soundManager?.button()
-            requestShuffle()
-        }
-        btnSettings.setOnClickListener {
+        btnMenuBack.setOnClickListener {
             soundManager?.button()
             showPauseDialog()
         }

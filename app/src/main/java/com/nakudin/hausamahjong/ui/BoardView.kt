@@ -297,8 +297,8 @@ class BoardView @JvmOverloads constructor(
 
         bgPaint.shader = LinearGradient(
             rect.left, rect.top, rect.right, rect.bottom,
-            Color.parseColor("#2E7D32"),
-            Color.parseColor("#1B5E20"),
+            Color.parseColor("#1A4A4A"),
+            Color.parseColor("#0D3B3B"),
             Shader.TileMode.CLAMP
         )
         canvas.drawRoundRect(rect, 16f, 16f, bgPaint)
@@ -306,8 +306,8 @@ class BoardView @JvmOverloads constructor(
         val innerRect = RectF(left + 8f, top + 8f, rect.right - 8f, rect.bottom - 8f)
         bgPaint.shader = LinearGradient(
             innerRect.left, innerRect.top, innerRect.right, innerRect.bottom,
-            Color.parseColor("#33691E"),
-            Color.parseColor("#2E7D32"),
+            Color.parseColor("#1F5555"),
+            Color.parseColor("#1A4A4A"),
             Shader.TileMode.CLAMP
         )
         canvas.drawRoundRect(innerRect, 12f, 12f, bgPaint)
@@ -501,7 +501,7 @@ class BoardView @JvmOverloads constructor(
 
         if (isFree && !isFaceUp) {
             val freeGlow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.parseColor("#4CAF50")
+                color = Color.parseColor("#26A69A")
                 style = Paint.Style.STROKE
                 strokeWidth = 2f
                 alpha = (100 + selectedPulse * 50).toInt()
