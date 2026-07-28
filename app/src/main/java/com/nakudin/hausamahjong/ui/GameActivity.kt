@@ -34,6 +34,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     private lateinit var tvLevelNumber: TextView
     private lateinit var tvMoves: TextView
     private lateinit var tvHints: TextView
+    private lateinit var tvTimer: TextView
     private lateinit var tvCoins: TextView
     private lateinit var btnHint: ImageButton
     private lateinit var btnUndo: ImageButton
@@ -49,6 +50,19 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
     private var comboCount = 0
     private var lastMatchTime = 0L
+
+    private val timerHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            gameState?.let {
+                val elapsed = it.getElapsedTime() / 1000
+                val m = elapsed / 60
+                val s = elapsed % 60
+                tvTimer.text = "$m:${"%02d".format(s)}"
+            }
+            timerHandler.postDelayed(this, 1000)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +109,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         tvLevelNumber = findViewById(R.id.tvLevelNumber)
         tvMoves = findViewById(R.id.tvMoves)
         tvHints = findViewById(R.id.tvHints)
+        tvTimer = findViewById(R.id.tvTimer)
         tvCoins = findViewById(R.id.tvCoins)
         btnHint = findViewById(R.id.btnHint)
         btnUndo = findViewById(R.id.btnUndo)
@@ -123,6 +138,9 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
         boardView.setBoard(board!!)
         boardView.setOnTileClickListener(this)
+
+        timerHandler.removeCallbacks(timerRunnable)
+        timerHandler.post(timerRunnable)
     }
 
     private fun setupClickListeners() {
@@ -586,11 +604,14 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val tvTitle = dialog.findViewById<TextView>(R.id.tvTitle)
+        val tvLevelSub = dialog.findViewById<TextView>(R.id.tvLevelSub)
         val tvMoves = dialog.findViewById<TextView>(R.id.tvMoves)
         val tvScore = dialog.findViewById<TextView>(R.id.tvScore)
         val tvTime = dialog.findViewById<TextView>(R.id.tvTime)
         val btnNext = dialog.findViewById<Button>(R.id.btnNext)
         val btnMenu = dialog.findViewById<Button>(R.id.btnMenu)
+
+        timerHandler.removeCallbacks(timerRunnable)
 
         val tvBaseReward = dialog.findViewById<TextView>(R.id.tvBaseReward)
         val tvComboReward = dialog.findViewById<TextView>(R.id.tvComboReward)
@@ -615,6 +636,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             }
         } else {
             tvTitle.text = getString(R.string.win)
+            tvLevelSub.text = "Level $levelNumber"
             tvMoves.text = getString(R.string.moves) + ": ${state.moves}"
             tvScore.text = getString(R.string.score) + ": ${state.score}"
 
@@ -785,6 +807,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
     override fun onDestroy() {
         super.onDestroy()
+        timerHandler.removeCallbacks(timerRunnable)
         soundManager?.release()
     }
 }
