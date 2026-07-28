@@ -231,21 +231,24 @@ class BoardView @JvmOverloads constructor(
         slotTileH = slotHeight - 10f * density
         slotTileW = slotTileH / 1.3f
 
-        val totalW = board.width * (tileWidth + tilePadding) + totalLayerW
-        val totalH = board.height * (tileHeight + tilePadding) + totalLayerH
+        val minXpos = board.tiles.minOf { it.x * (tileWidth + tilePadding) }.toFloat()
+        val maxXpos = board.tiles.maxOf { it.x * (tileWidth + tilePadding) + tileWidth + it.layer * layerOffsetX }.toFloat()
+        val minYpos = board.tiles.minOf { it.y * (tileHeight + tilePadding) - it.layer * layerOffsetY }.toFloat()
+        val maxYpos = board.tiles.maxOf { it.y * (tileHeight + tilePadding) + tileHeight }.toFloat()
 
-        boardLeft = (usableWidth - totalW) / 2f
-        boardTop = slotAreaHeight + (usableHeight - totalH) / 2f
+        boardLeft = usableWidth / 2f - (minXpos + maxXpos) / 2f
+        boardTop = slotAreaHeight + usableHeight / 2f - (minYpos + maxYpos) / 2f
 
         if (boardLeft < 0f) boardLeft = 0f
         if (boardTop < slotAreaHeight) boardTop = slotAreaHeight + 8f
 
         val slotTop = 8f * density
         slotY = slotTop
+        val slotContentW = 4f * slotTileW + 16f * density
         slotRect = RectF(
-            usableWidth * 0.06f,
+            (usableWidth - slotContentW) / 2f,
             slotTop,
-            usableWidth * 0.94f,
+            (usableWidth - slotContentW) / 2f + slotContentW,
             slotTop + slotHeight
         )
     }
@@ -358,17 +361,14 @@ class BoardView @JvmOverloads constructor(
         }
 
         for (i in 0 until maxSlotSize) {
-            val x = slotRect.left + 10f + i * slotTileW + (slotRect.width() - 20f - maxSlotSize * slotTileW) / 2f
+            val x = slotRect.left + 8f + i * slotTileW
             val y = slotRect.centerY() - slotTileH / 2f
             val emptyRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
             canvas.drawRoundRect(emptyRect, 4f, 4f, emptySlotPaint)
         }
 
-        val slotContentWidth = maxSlotSize * slotTileW
-        val slotOffsetX = (slotRect.width() - 20f - slotContentWidth) / 2f
-
         for ((index, tile) in slotTiles.withIndex()) {
-            val x = slotRect.left + 10f + index * slotTileW + slotOffsetX
+            val x = slotRect.left + 8f + index * slotTileW
             val y = slotRect.centerY() - slotTileH / 2f
             val tileRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
 
@@ -1053,7 +1053,7 @@ class BoardView @JvmOverloads constructor(
         if (!slotRect.contains(touchX, touchY)) return null
 
         for ((index, tile) in slotTiles.withIndex()) {
-            val x = slotRect.left + 10f + index * slotTileW + (slotRect.width() - 20f - maxSlotSize * slotTileW) / 2f
+            val x = slotRect.left + 8f + index * slotTileW
             val y = slotRect.centerY() - slotTileH / 2f
             val tileRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
             if (tileRect.contains(touchX, touchY)) return tile
@@ -1062,7 +1062,7 @@ class BoardView @JvmOverloads constructor(
     }
 
     fun animateTileToSlot(tile: Tile, fromX: Float, fromY: Float, onComplete: () -> Unit) {
-        val targetX = slotRect.left + 10f + slotTiles.size * slotTileW + (slotRect.width() - 20f - maxSlotSize * slotTileW) / 2f + slotTileW * 0.45f
+        val targetX = slotRect.left + 8f + slotTiles.size * slotTileW + slotTileW * 0.45f
         val targetY = slotRect.centerY()
 
         animatingTile = AnimatingTile(tile, fromX, fromY, targetX, targetY)

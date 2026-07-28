@@ -124,28 +124,19 @@ object LevelLoader {
                 }
             }
 
-            val shuffledPositions = positions.shuffled(rng)
+            val shuffledPositions = positions.shuffled(rng).sortedBy { (it.first * 31 + it.second * 37 + it.third * 41) % 97 }
             val sizeLimit = (shuffledPositions.size / 2) * 2
             val tileData = mutableListOf<TileData>()
 
             val symbolRng = Random(seed + 1)
             val shuffledSymbolsForLevel = levelSymbols.shuffled(symbolRng)
 
-            val positionsByLayer = shuffledPositions.groupBy { it.third }
-            val layerPairs = mutableListOf<Pair<Triple<Int,Int,Int>, Triple<Int,Int,Int>>>()
-            for (layer in 0 until layers) {
-                val layerPos = positionsByLayer[layer]?.toMutableList() ?: continue
-                layerPos.shuffle(rng)
-                val layerHalf = layerPos.size / 2
-                for (i in 0 until layerHalf) {
-                    layerPairs.add(layerPos[i] to layerPos[i + layerHalf])
-                }
-            }
-            layerPairs.shuffle(rng)
-            for ((i, pair) in layerPairs.withIndex()) {
-                val symbol = shuffledSymbolsForLevel[i % shuffledSymbolsForLevel.size]
-                tileData.add(TileData(symbol, pair.first.third, pair.first.first, pair.first.second))
-                tileData.add(TileData(symbol, pair.second.third, pair.second.first, pair.second.second))
+            for (i in 0 until sizeLimit step 2) {
+                val symbol = shuffledSymbolsForLevel[(i / 2) % shuffledSymbolsForLevel.size]
+                val pos1 = shuffledPositions[i]
+                val pos2 = shuffledPositions[i + 1]
+                tileData.add(TileData(symbol, pos1.third, pos1.first, pos1.second))
+                tileData.add(TileData(symbol, pos2.third, pos2.first, pos2.second))
             }
 
             tileData.shuffle(rng)
@@ -182,25 +173,18 @@ object LevelLoader {
             addDiamondPositions(positions, width, height, layers, layer)
         }
 
-        val positionsByLayer = positions.groupBy { it.third }
-        val layerPairs = mutableListOf<Pair<Triple<Int,Int,Int>, Triple<Int,Int,Int>>>()
-        for (layer in 0 until layers) {
-            val layerPos = positionsByLayer[layer]?.toMutableList() ?: continue
-            layerPos.shuffle(rng)
-            val layerHalf = layerPos.size / 2
-            for (i in 0 until layerHalf) {
-                layerPairs.add(layerPos[i] to layerPos[i + layerHalf])
-            }
-        }
-        layerPairs.shuffle(rng)
+        val shuffledPositions = positions.shuffled(rng).sortedBy { (it.first * 31 + it.second * 37 + it.third * 41) % 97 }
+        val sizeLimit = (shuffledPositions.size / 2) * 2
         val tileData = mutableListOf<TileData>()
         val symbolRng = Random(seed + 1)
         val shuffledSymbolsForLevel = levelSymbols.shuffled(symbolRng)
 
-        for ((i, pair) in layerPairs.withIndex()) {
-            val symbol = shuffledSymbolsForLevel[i % shuffledSymbolsForLevel.size]
-            tileData.add(TileData(symbol, pair.first.third, pair.first.first, pair.first.second))
-            tileData.add(TileData(symbol, pair.second.third, pair.second.first, pair.second.second))
+        for (i in 0 until sizeLimit step 2) {
+            val symbol = shuffledSymbolsForLevel[(i / 2) % shuffledSymbolsForLevel.size]
+            val pos1 = shuffledPositions[i]
+            val pos2 = shuffledPositions[i + 1]
+            tileData.add(TileData(symbol, pos1.third, pos1.first, pos1.second))
+            tileData.add(TileData(symbol, pos2.third, pos2.first, pos2.second))
         }
         tileData.shuffle(rng)
 
