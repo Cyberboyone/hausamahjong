@@ -219,9 +219,15 @@ class BoardView @JvmOverloads constructor(
         layerOffsetY = 4f * density
 
         val totalLayerW = (board.maxLayers - 1) * layerOffsetX
-        val totalLayerH = (board.maxLayers - 1) * layerOffsetY
-        val idealTileW = (usableWidth - 16f - totalLayerW) / (board.width * 1.15f)
-        val minTileSize = 40f * density
+
+        if (board.tiles.isEmpty()) return
+        val tileXs = board.tiles.map { it.x }
+        val tileYs = board.tiles.map { it.y }
+        val gridCols = tileXs.max() - tileXs.min() + 1
+        val gridRows = tileYs.max() - tileYs.min() + 1
+
+        val idealTileW = (usableWidth - 16f - totalLayerW) / (gridCols + (gridCols - 1) * 0.12f)
+        val minTileSize = 28f * density
         tileWidth = maxOf(idealTileW, minTileSize)
         tileHeight = tileWidth * 1.3f
         tilePadding = tileWidth * 0.12f
@@ -234,7 +240,7 @@ class BoardView @JvmOverloads constructor(
         val minXpos = board.tiles.minOf { it.x * (tileWidth + tilePadding) }.toFloat()
         val maxXpos = board.tiles.maxOf { it.x * (tileWidth + tilePadding) + tileWidth + it.layer * layerOffsetX }.toFloat()
         val minYpos = board.tiles.minOf { it.y * (tileHeight + tilePadding) - it.layer * layerOffsetY }.toFloat()
-        val maxYpos = board.tiles.maxOf { it.y * (tileHeight + tilePadding) + tileHeight }.toFloat()
+        val maxYpos = board.tiles.maxOf { it.y * (tileHeight + tilePadding) + tileHeight - it.layer * layerOffsetY }.toFloat()
 
         boardLeft = usableWidth / 2f - (minXpos + maxXpos) / 2f
         boardTop = slotAreaHeight + usableHeight / 2f - (minYpos + maxYpos) / 2f
@@ -301,15 +307,22 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawBoardBackground(canvas: Canvas) {
         val board = board ?: return
-        val baseW = board.width * tileWidth + (board.width - 1) * tilePadding
-        val layerW = (board.maxLayers - 1) * layerOffsetX
-        val totalW = baseW + layerW + 40f
-        val baseH = board.height * tileHeight + (board.height - 1) * tilePadding
-        val layerH = (board.maxLayers - 1) * layerOffsetY
-        val totalH = baseH + layerH + 40f
-        val left = boardLeft - 20f
-        val top = boardTop - 20f - layerH
-        val rect = RectF(left, top, left + totalW, top + totalH)
+        if (board.tiles.isEmpty()) return
+        val tileXs = board.tiles.map { it.x }
+        val tileYs = board.tiles.map { it.y }
+        val minX = tileXs.min()
+        val maxX = tileXs.max()
+        val minY = tileYs.min()
+        val maxY = tileYs.max()
+        val minLayer = board.tiles.minOf { it.layer }
+        val maxLayer = board.tiles.maxOf { it.layer }
+
+        val minPixelX = boardLeft + tilePadding + minX * (tileWidth + tilePadding) - minLayer * layerOffsetX
+        val maxPixelX = boardLeft + tilePadding + maxX * (tileWidth + tilePadding) + tileWidth + maxLayer * layerOffsetX
+        val minPixelY = boardTop + tilePadding + minY * (tileHeight + tilePadding) - maxLayer * layerOffsetY
+        val maxPixelY = boardTop + tilePadding + maxY * (tileHeight + tilePadding) + tileHeight - minLayer * layerOffsetY
+        val padding = 20f
+        val rect = RectF(minPixelX - padding, minPixelY - padding, maxPixelX + padding, maxPixelY + padding)
 
         bgPaint.shader = LinearGradient(
             rect.left, rect.top, rect.right, rect.bottom,
@@ -319,7 +332,7 @@ class BoardView @JvmOverloads constructor(
         )
         canvas.drawRoundRect(rect, 16f, 16f, bgPaint)
 
-        val innerRect = RectF(left + 8f, top + 8f, rect.right - 8f, rect.bottom - 8f)
+        val innerRect = RectF(rect.left + 8f, rect.top + 8f, rect.right - 8f, rect.bottom - 8f)
         bgPaint.shader = LinearGradient(
             innerRect.left, innerRect.top, innerRect.right, innerRect.bottom,
             Color.parseColor("#1F5555"),

@@ -95,7 +95,7 @@ object MatchEngine {
         return null
     }
 
-    fun isSolvable(board: Board, maxDepth: Int = 50): Boolean {
+    fun isSolvable(board: Board, maxDepth: Int = 100): Boolean {
         val seen = mutableSetOf<Long>()
         return isSolvableRecursive(board, seen, 0, maxDepth)
     }
@@ -108,24 +108,17 @@ object MatchEngine {
         if (zobristKey in seen) return false
         seen.add(zobristKey)
 
-        val pair = findMatchingPair(board)
-        if (pair == null) return false
-
-        // Try this pair
-        val newBoard = applyMatch(board, pair.first, pair.second)
-        if (isSolvableRecursive(newBoard, seen, depth + 1, maxDepth)) return true
-
-        // Try alternative pairs
         val freeTiles = getFreeTiles(board)
         val groups = freeTiles.groupBy { it.symbolId }
+
         for ((_, tiles) in groups) {
             if (tiles.size >= 2) {
                 for (i in 0 until tiles.size - 1) {
                     for (j in i + 1 until tiles.size) {
-                        if (tiles[i].id == pair.first.id && tiles[j].id == pair.second.id) continue
                         if (canMatch(tiles[i], tiles[j], board)) {
-                            val altBoard = applyMatch(board, tiles[i], tiles[j])
-                            if (isSolvableRecursive(altBoard, seen, depth + 1, maxDepth)) return true
+                            val newBoard = applyMatch(board, tiles[i], tiles[j])
+                            val branchSeen = mutableSetOf(zobristKey)
+                            if (isSolvableRecursive(newBoard, branchSeen, depth + 1, maxDepth)) return true
                         }
                     }
                 }
