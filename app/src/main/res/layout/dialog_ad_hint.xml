@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="28dp"
-    android:background="@drawable/bg_dialog_premium">
+    android:background="@drawable/bg_dialog_teal">
 
     <TextView
         android:id="@+id/tvMessage"
@@ -13,29 +13,34 @@
         android:text="@string/watch_ad_for_hint"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFD54F"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/soft_gold"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="20dp" />
 
     <Button
         android:id="@+id/btnWatch"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="50dp"
         android:text="@string/watch_ad_for_hint"
         android:textSize="14sp"
-        android:textColor="#0D4F24"
-        android:background="@drawable/bg_button_gold"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/text_dark"
+        android:background="@drawable/bg_button_pill_gold"
         android:layout_marginBottom="12dp"
-        android:elevation="4dp" />
+        android:elevation="6dp" />
 
     <Button
         android:id="@+id/btnBuyHint"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="50dp"
         android:text="Buy Hint (₦100)"
         android:textSize="14sp"
-        android:textColor="#FFD54F"
-        android:background="@drawable/bg_button_green"
+        android:textStyle="bold"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/bg_button_pill_green"
         android:layout_marginBottom="12dp"
         android:elevation="4dp" />
 
@@ -45,7 +50,8 @@
         android:layout_height="48dp"
         android:text="@string/no_ads_thanks"
         android:textSize="14sp"
-        android:textColor="#A5D6A7"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/sky_accent"
         android:background="@android:color/transparent"
         android:elevation="0dp" />
 

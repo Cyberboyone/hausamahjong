@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_green">
+    android:background="@drawable/bg_gradient_splash">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,25 +26,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="₦0"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#FFD54F"
+                android:fontFamily="@font/nunito_regular"
+                android:textColor="@color/soft_gold"
                 android:shadowColor="#80000000"
                 android:shadowDx="0"
                 android:shadowDy="1"
                 android:shadowRadius="4"
                 android:padding="8dp"
-                android:background="@drawable/bg_coin_counter"
+                android:background="@drawable/bg_button_pill_icon"
                 android:drawableStart="@drawable/ic_coin"
                 android:drawablePadding="6dp" />
         </LinearLayout>
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:src="@mipmap/ic_launcher"
             android:scaleType="fitCenter"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:elevation="8dp" />
 
         <TextView
@@ -52,14 +53,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textSize="30sp"
+            android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="#FFD54F"
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/soft_gold"
             android:shadowColor="#80000000"
             android:shadowDx="0"
-            android:shadowDy="2"
+            android:shadowDy="3"
             android:shadowRadius="8"
-            android:letterSpacing="0.05"
+            android:letterSpacing="0.02"
             android:layout_marginBottom="4dp" />
 
         <TextView
@@ -68,7 +70,8 @@
             android:layout_height="wrap_content"
             android:text="Karin Magana"
             android:textSize="15sp"
-            android:textColor="#A5D6A7"
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/sky_accent"
             android:letterSpacing="0.2"
             android:layout_marginBottom="8dp" />
 
@@ -79,7 +82,8 @@
             android:text="Level 1"
             android:textSize="17sp"
             android:textStyle="bold"
-            android:textColor="#FFD54F"
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/soft_gold"
             android:shadowColor="#80000000"
             android:shadowDx="0"
             android:shadowDy="1"
@@ -89,14 +93,15 @@
         <Button
             android:id="@+id/btnPlay"
             android:layout_width="240dp"
-            android:layout_height="56dp"
+            android:layout_height="60dp"
             android:text="@string/play"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#0D4F24"
-            android:background="@drawable/bg_button_gold"
-            android:layout_marginBottom="20dp"
-            android:elevation="6dp" />
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/text_dark"
+            android:background="@drawable/bg_button_pill_gold"
+            android:layout_marginBottom="24dp"
+            android:elevation="8dp" />
 
         <!-- Action Buttons Row -->
         <LinearLayout
@@ -106,55 +111,103 @@
             android:gravity="center"
             android:layout_marginBottom="24dp">
 
-            <ImageButton
-                android:id="@+id/btnShop"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:background="@drawable/bg_button_circle_green"
-                android:src="@drawable/ic_coin"
-                android:scaleType="centerInside"
-                android:padding="12dp"
-                android:contentDescription="Shop"
-                app:tint="#FFD54F"
-                android:elevation="4dp"
-                android:layout_marginEnd="14dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="20dp">
 
-            <ImageButton
-                android:id="@+id/btnDailyReward"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:background="@drawable/bg_button_circle_green"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                android:scaleType="centerInside"
-                android:padding="12dp"
-                android:contentDescription="Daily Reward"
-                app:tint="#FFD54F"
-                android:elevation="4dp"
-                android:layout_marginEnd="14dp" />
+                <ImageButton
+                    android:id="@+id/btnShop"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_button_pill_icon"
+                    android:src="@drawable/ic_coin"
+                    android:scaleType="centerInside"
+                    android:padding="14dp"
+                    android:contentDescription="Shop"
+                    app:tint="@color/soft_gold"
+                    android:elevation="4dp" />
 
-            <ImageButton
-                android:id="@+id/btnProfile"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:background="@drawable/bg_button_circle_green"
-                android:src="@android:drawable/ic_menu_gallery"
-                android:scaleType="centerInside"
-                android:padding="12dp"
-                android:contentDescription="Profile"
-                app:tint="#FFD54F"
-                android:elevation="4dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shop"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/nunito_regular"
+                    android:textColor="@color/sky_accent"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="20dp">
+
+                <ImageButton
+                    android:id="@+id/btnDailyReward"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_button_pill_icon"
+                    android:src="@android:drawable/ic_menu_my_calendar"
+                    android:scaleType="centerInside"
+                    android:padding="14dp"
+                    android:contentDescription="Daily Reward"
+                    app:tint="@color/soft_gold"
+                    android:elevation="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rewards"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/nunito_regular"
+                    android:textColor="@color/sky_accent"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnProfile"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_button_pill_icon"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    android:scaleType="centerInside"
+                    android:padding="14dp"
+                    android:contentDescription="Profile"
+                    app:tint="@color/soft_gold"
+                    android:elevation="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/nunito_regular"
+                    android:textColor="@color/sky_accent"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnSettings"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_button_circle_green"
+            android:background="@drawable/bg_button_pill_icon"
             android:src="@android:drawable/ic_menu_manage"
             android:scaleType="centerInside"
             android:padding="12dp"
             android:contentDescription="@string/settings"
-            app:tint="#FFFFFF"
+            app:tint="@color/text_primary"
             android:elevation="4dp"
             android:layout_marginBottom="8dp" />
     </LinearLayout>

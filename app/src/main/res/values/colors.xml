@@ -1,49 +1,81 @@
 <resources>
-    <color name="primary">#1A6B37</color>
-    <color name="primary_dark">#0D4F24</color>
-    <color name="primary_light">#2E8B57</color>
-    <color name="secondary">#FFD54F</color>
-    <color name="secondary_dark">#FFC107</color>
-    <color name="accent">#FF8F00</color>
-    <color name="background">#0A3D1A</color>
-    <color name="surface">#1A6B37</color>
-    <color name="surface_variant">#14572C</color>
-    <color name="surface_card">#1E7A3F</color>
-    <color name="error">#C62828</color>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#0D3B3B</color>
+    <color name="primary_dark">#0A2828</color>
+    <color name="primary_light">#1A5C5C</color>
+    <color name="secondary">#FFB300</color>
+    <color name="secondary_dark">#FF8F00</color>
+    <color name="accent">#6C4AB6</color>
+    <color name="background">#0D3B3B</color>
+    <color name="surface">#1A5C5C</color>
+    <color name="surface_variant">#153030</color>
+    <color name="surface_card">#1A4040</color>
+    <color name="error">#FF6B6B</color>
     <color name="on_primary">#FFFFFF</color>
-    <color name="on_secondary">#1A1A1A</color>
+    <color name="on_secondary">#3E2723</color>
     <color name="on_background">#FFFFFF</color>
     <color name="on_surface">#FFFFFF</color>
     <color name="on_error">#FFFFFF</color>
 
+    <!-- Accent Colors -->
+    <color name="golden_amber">#FFB300</color>
+    <color name="soft_gold">#FFD54F</color>
+    <color name="cream">#FFF8E1</color>
+    <color name="deep_purple">#2D1B69</color>
+    <color name="soft_violet">#6C4AB6</color>
+    <color name="coral_pink">#FF6B6B</color>
+    <color name="leaf_green">#4CAF50</color>
+    <color name="sky_accent">#80CBC4</color>
+
+    <!-- Tile Colors -->
     <color name="tile_bg_default">#F5F0EB</color>
-    <color name="tile_bg_selected">#FFF3E0</color>
+    <color name="tile_bg_selected">#FFF8E1</color>
     <color name="tile_bg_matched">#E8F5E9</color>
     <color name="tile_bg_blocked">#EFEBE9</color>
-    <color name="tile_border">#8D6E63</color>
-    <color name="tile_border_selected">#FFD54F</color>
-    <color name="tile_shadow">#3E2723</color>
+    <color name="tile_border">#FFFFFF</color>
+    <color name="tile_border_selected">#FFB300</color>
+    <color name="tile_shadow">#1A1A1A</color>
 
+    <!-- Text Colors -->
     <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#A5D6A7</color>
+    <color name="text_secondary">#80CBC4</color>
     <color name="text_gold">#FFD54F</color>
-    <color name="divider">#2E8B57</color>
-    <color name="button_primary">#1A6B37</color>
-    <color name="button_secondary">#FFD54F</color>
-    <color name="button_disabled">#4A7A5A</color>
+    <color name="text_dark">#3E2723</color>
+    <color name="divider">#2A5555</color>
+    <color name="button_primary">#0D3B3B</color>
+    <color name="button_secondary">#FFB300</color>
+    <color name="button_disabled">#4A6A6A</color>
 
-    <color name="proverb_bg">#0D4F24</color>
+    <!-- Proverb Colors -->
+    <color name="proverb_bg">#0A2828</color>
     <color name="proverb_text">#FFD54F</color>
-    <color name="proverb_english">#A5D6A7</color>
+    <color name="proverb_english">#80CBC4</color>
 
-    <color name="ad_overlay">#80000000</color>
+    <!-- Overlay Colors -->
+    <color name="ad_overlay">#99000000</color>
+    <color name="scrim">#99000000</color>
 
-    <color name="splash_bg_start">#0A3D1A</color>
-    <color name="splash_bg_end">#1A6B37</color>
+    <!-- Gradient Colors -->
+    <color name="splash_bg_start">#0D3B3B</color>
+    <color name="splash_bg_end">#1A5C5C</color>
     <color name="gold_shimmer_start">#FFD54F</color>
     <color name="gold_shimmer_end">#FFA000</color>
 
+    <!-- HUD Colors -->
+    <color name="hud_background">#CC0D3B3B</color>
+    <color name="hud_border">#40FFFFFF</color>
+
+    <!-- Dialog Colors -->
+    <color name="dialog_bg_start">#2D1B69</color>
+    <color name="dialog_bg_end">#1A1040</color>
+    <color name="dialog_border">#6C4AB6</color>
+
+    <!-- Utility Colors -->
     <color name="green_glow">#40FFD54F</color>
     <color name="card_shadow">#40000000</color>
     <color name="overlay_dark">#99000000</color>
+    <color name="golden_glow">#60FFB300</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="white_40">#66FFFFFF</color>
+    <color name="white_60">#99FFFFFF</color>
 </resources>

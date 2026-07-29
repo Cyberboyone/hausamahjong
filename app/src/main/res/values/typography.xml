@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Typography Scale - Casual Puzzle Game Style -->
+
+    <!-- Base Style -->
+    <style name="TextAppearance.Hausa" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Display: Level up, Splash title -->
+    <style name="TextAppearance.Hausa.Display" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Headline: Dialog titles -->
+    <style name="TextAppearance.Hausa.Headline" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Title: HUD values, button text -->
+    <style name="TextAppearance.Hausa.Title" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Subtitle: Secondary headings -->
+    <style name="TextAppearance.Hausa.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Body: Dialog body, descriptions -->
+    <style name="TextAppearance.Hausa.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <!-- Body Secondary: Less prominent text -->
+    <style name="TextAppearance.Hausa.BodySecondary">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- Caption: Labels, secondary info -->
+    <style name="TextAppearance.Hausa.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- Badge: Count badges -->
+    <style name="TextAppearance.Hausa.Badge">
+        <item name="android:textSize">9sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Button Primary: CTA buttons -->
+    <style name="TextAppearance.Hausa.ButtonPrimary">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Button Secondary: Outline/ghost buttons -->
+    <style name="TextAppearance.Hausa.ButtonSecondary">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Button Small: Compact buttons -->
+    <style name="TextAppearance.Hausa.ButtonSmall">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Number Large: Stats, scores -->
+    <style name="TextAppearance.Hausa.NumberLarge">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/soft_gold</item>
+    </style>
+
+    <!-- Number Medium: Timer, move count -->
+    <style name="TextAppearance.Hausa.NumberMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Coin Display: Currency amounts -->
+    <style name="TextAppearance.Hausa.Coin">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/soft_gold</item>
+    </style>
+
+    <!-- Proverb: Italic proverb text -->
+    <style name="TextAppearance.Hausa.Proverb">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/proverb_text</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <!-- Proverb English: Translation text -->
+    <style name="TextAppearance.Hausa.ProverbEnglish">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textColor">@color/proverb_english</item>
+    </style>
+</resources>

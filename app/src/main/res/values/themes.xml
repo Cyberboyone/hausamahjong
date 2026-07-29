@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base Theme - Casual Puzzle Game Style -->
     <style name="Theme.HausaMahjong" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/secondary</item>
+        <item name="colorAccent">@color/golden_amber</item>
         <item name="android:windowBackground">@color/background</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/primary_dark</item>
+        <item name="android:fontFamily">@font/nunito_regular</item>
+
+        <!-- Button Style -->
+        <item name="materialButtonStyle">@style/Widget.Hausa.Button</item>
+
+        <!-- Text Appearance -->
+        <item name="android:textAppearanceMedium">@style/TextAppearance.Hausa.Body</item>
     </style>
 
+    <!-- No Action Bar Variant -->
     <style name="Theme.HausaMahjong.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -17,12 +26,58 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <!-- Splash Theme -->
     <style name="Theme.HausaMahjong.Splash">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@drawable/bg_gradient_green</item>
+        <item name="android:windowBackground">@drawable/bg_gradient_splash</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/primary_dark</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="Widget.Hausa.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:fontFamily">@font/nunito_regular</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@animator/button_press_scale</item>
+    </style>
+
+    <style name="Widget.Hausa.Button.Primary" parent="Widget.Hausa.Button">
+        <item name="android:background">@drawable/bg_button_pill_gold</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingStart">32dp</item>
+        <item name="android:paddingEnd">32dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:elevation">6dp</item>
+    </style>
+
+    <style name="Widget.Hausa.Button.Secondary" parent="Widget.Hausa.Button">
+        <item name="android:background">@drawable/bg_button_pill_green</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="Widget.Hausa.Button.Text" parent="Widget.Hausa.Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minHeight">44dp</item>
+    </style>
+
+    <!-- Dialog Theme -->
+    <style name="Theme.HausaMahjong.Dialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowBackground">@drawable/bg_dialog_purple</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.6</item>
     </style>
 </resources>

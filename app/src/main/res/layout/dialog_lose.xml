@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="28dp"
-    android:background="@drawable/bg_dialog_premium">
+    android:background="@drawable/bg_dialog_lose">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -13,7 +13,8 @@
         android:text="@string/lose"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#FF8A80"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/coral_pink"
         android:shadowColor="#80000000"
         android:shadowDx="0"
         android:shadowDy="1"
@@ -26,7 +27,8 @@
         android:layout_height="wrap_content"
         android:text="Don't give up!"
         android:textSize="14sp"
-        android:textColor="#A5D6A7"
+        android:fontFamily="@font/nunito_regular"
+        android:textColor="@color/sky_accent"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="28dp" />
 
@@ -43,8 +45,10 @@
             android:layout_height="50dp"
             android:text="@string/menu"
             android:textSize="14sp"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/bg_button_green"
+            android:textStyle="bold"
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_pill_green"
             android:layout_marginEnd="8dp"
             android:elevation="4dp" />
 
@@ -56,8 +60,9 @@
             android:text="@string/try_again"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#0D4F24"
-            android:background="@drawable/bg_button_gold"
+            android:fontFamily="@font/nunito_regular"
+            android:textColor="@color/text_dark"
+            android:background="@drawable/bg_button_pill_gold"
             android:layout_marginStart="8dp"
             android:elevation="4dp" />
     </LinearLayout>

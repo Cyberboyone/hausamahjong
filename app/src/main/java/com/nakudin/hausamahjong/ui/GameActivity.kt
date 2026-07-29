@@ -40,7 +40,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     private lateinit var tvCoins: TextView
     private lateinit var btnHint: ImageButton
     private lateinit var btnUndo: ImageButton
-    private lateinit var btnShuffle: ImageButton
     private lateinit var btnMenuBack: ImageButton
     private lateinit var badgeHints: TextView
     private lateinit var badgeUndoCount: TextView
@@ -110,7 +109,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
     private fun initViews() {
         boardView = findViewById(R.id.boardView)
-        tvLevel = findViewById(R.id.tvLevel)
         tvLevelNumber = findViewById(R.id.tvLevelNumber)
         tvMoves = findViewById(R.id.tvMoves)
         tvHints = findViewById(R.id.tvHints)
@@ -118,7 +116,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         tvCoins = findViewById(R.id.tvCoins)
         btnHint = findViewById(R.id.btnHint)
         btnUndo = findViewById(R.id.btnUndo)
-        btnShuffle = findViewById(R.id.btnShuffle)
         btnMenuBack = findViewById(R.id.btnMenuBack)
         badgeHints = findViewById(R.id.badgeHints)
         badgeUndoCount = findViewById(R.id.badgeUndoCount)
@@ -168,11 +165,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
                 it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         }
-        btnShuffle.setOnClickListener {
-            soundManager?.button()
-            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            requestShuffle()
-        }
         btnMenuBack.setOnClickListener {
             soundManager?.button()
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -195,9 +187,6 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
             badgeUndoCount.visibility = if (undoCount > 0) View.VISIBLE else View.GONE
             btnUndo.isEnabled = state.canUndo()
             btnUndo.alpha = if (state.canUndo()) 1f else 0.4f
-
-            btnShuffle.isEnabled = CoinManager.canAfford(CoinRewards.SHUFFLE_COST)
-            btnShuffle.alpha = if (CoinManager.canAfford(CoinRewards.SHUFFLE_COST)) 1f else 0.6f
         }
     }
 
