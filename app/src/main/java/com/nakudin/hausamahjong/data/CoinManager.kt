@@ -90,4 +90,6 @@ object CoinRewards {
     const val ACHIEVEMENT_UNLOCK = 500
     const val SHUFFLE_COST = 200
     const val SLOT_RETURN_COST = 500
+    const val UNDO_COST = 50
+    const val HINT_EXTRA_COST = 100
 }

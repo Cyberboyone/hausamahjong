@@ -242,7 +242,7 @@ class BoardView @JvmOverloads constructor(
         slotTileH = slotHeight - 10f * density
         slotTileW = slotTileH / 1.3f
 
-        val minXpos = board.tiles.minOf { it.x * (tileWidth + tilePadding) }.toFloat()
+        val minXpos = board.tiles.minOf { it.x * (tileWidth + tilePadding) + it.layer * layerOffsetX }.toFloat()
         val maxXpos = board.tiles.maxOf { it.x * (tileWidth + tilePadding) + tileWidth + it.layer * layerOffsetX }.toFloat()
         val minYpos = board.tiles.minOf { it.y * (tileHeight + tilePadding) - it.layer * layerOffsetY }.toFloat()
         val maxYpos = board.tiles.maxOf { it.y * (tileHeight + tilePadding) + tileHeight - it.layer * layerOffsetY }.toFloat()
@@ -255,7 +255,7 @@ class BoardView @JvmOverloads constructor(
 
         val slotTop = 8f * density
         slotY = slotTop
-        val slotContentW = 4f * slotTileW + 16f * density
+        val slotContentW = 4f * slotTileW * 0.9f + 3f * slotTileW * 0.1f + 16f * density
         slotRect = RectF(
             (usableWidth - slotContentW) / 2f,
             slotTop,
@@ -322,7 +322,7 @@ class BoardView @JvmOverloads constructor(
         val minLayer = board.tiles.minOf { it.layer }
         val maxLayer = board.tiles.maxOf { it.layer }
 
-        val minPixelX = boardLeft + tilePadding + minX * (tileWidth + tilePadding) - minLayer * layerOffsetX
+        val minPixelX = boardLeft + tilePadding + minX * (tileWidth + tilePadding) + minLayer * layerOffsetX
         val maxPixelX = boardLeft + tilePadding + maxX * (tileWidth + tilePadding) + tileWidth + maxLayer * layerOffsetX
         val minPixelY = boardTop + tilePadding + minY * (tileHeight + tilePadding) - maxLayer * layerOffsetY
         val maxPixelY = boardTop + tilePadding + maxY * (tileHeight + tilePadding) + tileHeight - minLayer * layerOffsetY

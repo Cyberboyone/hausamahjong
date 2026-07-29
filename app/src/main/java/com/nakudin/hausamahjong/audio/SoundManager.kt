@@ -19,6 +19,16 @@ class SoundManager(private val context: Context) {
     var isSoundEnabled = true
     var isVibrationEnabled = true
 
+    fun toggleSound(): Boolean {
+        isSoundEnabled = !isSoundEnabled
+        return isSoundEnabled
+    }
+
+    fun toggleVibration(): Boolean {
+        isVibrationEnabled = !isVibrationEnabled
+        return isVibrationEnabled
+    }
+
     fun init() {
         try {
             toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)

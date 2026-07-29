@@ -4,9 +4,11 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -38,7 +40,10 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     private lateinit var tvCoins: TextView
     private lateinit var btnHint: ImageButton
     private lateinit var btnUndo: ImageButton
+    private lateinit var btnShuffle: ImageButton
     private lateinit var btnMenuBack: ImageButton
+    private lateinit var badgeHints: TextView
+    private lateinit var badgeUndoCount: TextView
 
     private var board: Board? = null
     private var gameState: GameState? = null
@@ -113,7 +118,10 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         tvCoins = findViewById(R.id.tvCoins)
         btnHint = findViewById(R.id.btnHint)
         btnUndo = findViewById(R.id.btnUndo)
+        btnShuffle = findViewById(R.id.btnShuffle)
         btnMenuBack = findViewById(R.id.btnMenuBack)
+        badgeHints = findViewById(R.id.badgeHints)
+        badgeUndoCount = findViewById(R.id.badgeUndoCount)
 
         CoinManager.addListener(this)
         AchievementManager.addListener(this)
@@ -141,19 +149,33 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
         timerHandler.removeCallbacks(timerRunnable)
         timerHandler.post(timerRunnable)
+
+        animateBottomBar()
     }
 
     private fun setupClickListeners() {
         btnHint.setOnClickListener {
-            soundManager?.button()
+            soundManager?.hint()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             showHintDialog()
         }
         btnUndo.setOnClickListener {
+            if (gameState?.canUndo() == true) {
+                soundManager?.tap()
+                it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                performUndo()
+            } else {
+                it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            }
+        }
+        btnShuffle.setOnClickListener {
             soundManager?.button()
-            performUndo()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            requestShuffle()
         }
         btnMenuBack.setOnClickListener {
             soundManager?.button()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             showPauseDialog()
         }
     }
@@ -161,7 +183,21 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     private fun updateUI() {
         gameState?.let { state ->
             tvMoves.text = state.moves.toString()
-            tvHints.text = (3 - state.hintsUsed).toString()
+            val hintsRemaining = 3 - state.hintsUsed
+            tvHints.text = hintsRemaining.toString()
+            badgeHints.text = hintsRemaining.toString()
+            badgeHints.visibility = if (hintsRemaining > 0) View.VISIBLE else View.GONE
+            btnHint.isEnabled = state.canUseHint()
+            btnHint.alpha = if (state.canUseHint()) 1f else 0.4f
+
+            val undoCount = state.moveHistory.size
+            badgeUndoCount.text = undoCount.toString()
+            badgeUndoCount.visibility = if (undoCount > 0) View.VISIBLE else View.GONE
+            btnUndo.isEnabled = state.canUndo()
+            btnUndo.alpha = if (state.canUndo()) 1f else 0.4f
+
+            btnShuffle.isEnabled = CoinManager.canAfford(CoinRewards.SHUFFLE_COST)
+            btnShuffle.alpha = if (CoinManager.canAfford(CoinRewards.SHUFFLE_COST)) 1f else 0.6f
         }
     }
 
@@ -172,6 +208,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
     override fun onCoinsChanged(newAmount: Int, change: Int) {
         runOnUiThread {
             updateCoinDisplay()
+            updateUI()
             if (change > 0) {
                 animateCoinGain(change)
             }
@@ -498,16 +535,31 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         }
     }
 
+    private fun animateBottomBar() {
+        val hudBottom = findViewById<View>(R.id.hudBottom)
+        hudBottom.translationY = 200f
+        hudBottom.alpha = 0f
+        hudBottom.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(400)
+            .setInterpolator(OvershootInterpolator(1.2f))
+            .start()
+    }
+
     private fun performUndo() {
-        if (gameState?.canUndo() == true) {
-            val undone = gameState?.undo(board!!)
-            if (undone != null) {
-                gameState?.recordUndo()
-                MatchEngine.invalidateCache()
-                updateUI()
-                boardView.setBoard(board!!)
-                soundManager?.tap()
-            }
+        if (gameState?.canUndo() != true) return
+        if (!CoinManager.canAfford(CoinRewards.UNDO_COST)) {
+            Toast.makeText(this, "Need ${CoinManager.formatCoins(CoinRewards.UNDO_COST)} to undo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        CoinManager.spendCoins(CoinRewards.UNDO_COST)
+        val undone = gameState?.undo(board!!)
+        if (undone != null) {
+            gameState?.recordUndo()
+            MatchEngine.invalidateCache()
+            updateUI()
+            boardView.setBoard(board!!)
         }
     }
 
@@ -543,6 +595,7 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
 
         val tvMessage = dialog.findViewById<TextView>(R.id.tvMessage)
         val btnWatch = dialog.findViewById<Button>(R.id.btnWatch)
+        val btnBuy = dialog.findViewById<Button>(R.id.btnBuyHint)
         val btnNoThanks = dialog.findViewById<Button>(R.id.btnNoThanks)
 
         tvMessage.text = getString(R.string.watch_ad_for_hint)
@@ -555,9 +608,27 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
                     if (pair != null) {
                         boardView.highlightTiles(listOf(pair.first, pair.second))
                     }
+                    updateUI()
                 }
             } else {
                 Toast.makeText(this, R.string.ad_not_ready, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (btnBuy != null) {
+            btnBuy.text = "Buy (₦${CoinRewards.HINT_EXTRA_COST})"
+            btnBuy.isEnabled = CoinManager.canAfford(CoinRewards.HINT_EXTRA_COST)
+            btnBuy.setOnClickListener {
+                dialog.dismiss()
+                if (CoinManager.canAfford(CoinRewards.HINT_EXTRA_COST)) {
+                    CoinManager.spendCoins(CoinRewards.HINT_EXTRA_COST)
+                    val pair = MatchEngine.getHint(board!!)
+                    if (pair != null) {
+                        boardView.highlightTiles(listOf(pair.first, pair.second))
+                    }
+                    Toast.makeText(this, "Hint purchased! -${CoinManager.formatCoins(CoinRewards.HINT_EXTRA_COST)}", Toast.LENGTH_SHORT).show()
+                    updateUI()
+                }
             }
         }
 
@@ -575,6 +646,21 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         val btnResume = dialog.findViewById<Button>(R.id.btnResume)
         val btnRestart = dialog.findViewById<Button>(R.id.btnRestart)
         val btnMenu = dialog.findViewById<Button>(R.id.btnMenu)
+        val btnSoundToggle = dialog.findViewById<Button>(R.id.btnSoundToggle)
+        val btnVibrationToggle = dialog.findViewById<Button>(R.id.btnVibrationToggle)
+
+        updateToggleButton(btnSoundToggle, "Sound", soundManager?.isSoundEnabled ?: true)
+        updateToggleButton(btnVibrationToggle, "Vibration", soundManager?.isVibrationEnabled ?: true)
+
+        btnSoundToggle.setOnClickListener {
+            val enabled = soundManager?.toggleSound() ?: return@setOnClickListener
+            updateToggleButton(btnSoundToggle, "Sound", enabled)
+        }
+
+        btnVibrationToggle.setOnClickListener {
+            val enabled = soundManager?.toggleVibration() ?: return@setOnClickListener
+            updateToggleButton(btnVibrationToggle, "Vibration", enabled)
+        }
 
         btnResume.setOnClickListener {
             soundManager?.button()
@@ -584,13 +670,45 @@ class GameActivity : AppCompatActivity(), BoardView.OnTileClickListener, CoinMan
         btnRestart.setOnClickListener {
             soundManager?.button()
             dialog.dismiss()
-            restartLevel()
+            showRestartConfirmDialog()
         }
 
         btnMenu.setOnClickListener {
             soundManager?.button()
             dialog.dismiss()
             finish()
+        }
+
+        dialog.show()
+    }
+
+    private fun updateToggleButton(btn: Button, label: String, enabled: Boolean) {
+        btn.text = "$label: ${if (enabled) "ON" else "OFF"}"
+        btn.alpha = if (enabled) 1f else 0.5f
+    }
+
+    private fun showRestartConfirmDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_confirm)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val tvMessage = dialog.findViewById<TextView>(R.id.tvConfirmMessage)
+        val btnYes = dialog.findViewById<Button>(R.id.btnConfirmYes)
+        val btnNo = dialog.findViewById<Button>(R.id.btnConfirmNo)
+
+        tvMessage.text = "Restart this level?\nYour progress will be lost."
+
+        btnYes.setOnClickListener {
+            soundManager?.button()
+            dialog.dismiss()
+            restartLevel()
+        }
+
+        btnNo.setOnClickListener {
+            soundManager?.button()
+            dialog.dismiss()
         }
 
         dialog.show()

@@ -203,56 +203,131 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="14dp"
         android:background="@drawable/bg_hud_bottom"
         android:elevation="12dp"
         android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/btnUndo"
+        <FrameLayout
             android:layout_width="0dp"
-            android:layout_height="54dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/bg_button_circle_brown"
-            android:contentDescription="@string/undo"
-            android:src="@android:drawable/ic_menu_revert"
-            android:scaleType="centerInside"
-            android:padding="14dp"
-            app:tint="#FFFFFF"
-            android:elevation="4dp" />
+            android:layout_marginEnd="8dp">
 
-        <ImageButton
-            android:id="@+id/btnHint"
-            android:layout_width="0dp"
-            android:layout_height="62dp"
-            android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/bg_button_circle_gold"
-            android:contentDescription="@string/hint"
-            android:src="@android:drawable/ic_menu_info_details"
-            android:scaleType="centerInside"
-            android:padding="16dp"
-            app:tint="#3E2723"
-            android:elevation="6dp" />
+            <ImageButton
+                android:id="@+id/btnUndo"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_button_circle_brown"
+                android:contentDescription="@string/undo"
+                android:src="@drawable/ic_undo"
+                android:scaleType="centerInside"
+                android:padding="14dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@animator/button_press_scale" />
 
-        <ImageButton
-            android:id="@+id/btnMenuBack"
+            <TextView
+                android:id="@+id/badgeUndoCount"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="bottom|end"
+                android:gravity="center"
+                android:textSize="8sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/bg_badge_red"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
             android:layout_width="0dp"
-            android:layout_height="54dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/bg_button_circle_brown"
-            android:contentDescription="@string/menu"
-            android:src="@android:drawable/ic_menu_manage"
-            android:scaleType="centerInside"
-            android:padding="14dp"
-            app:tint="#FFFFFF"
-            android:elevation="4dp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
+
+            <ImageButton
+                android:id="@+id/btnHint"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_button_circle_gold"
+                android:contentDescription="@string/hint"
+                android:src="@drawable/ic_hint"
+                android:scaleType="centerInside"
+                android:padding="14dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@animator/button_press_scale" />
+
+            <TextView
+                android:id="@+id/badgeHints"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="bottom|end"
+                android:gravity="center"
+                android:text="3"
+                android:textSize="8sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/bg_badge_red" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
+
+            <ImageButton
+                android:id="@+id/btnShuffle"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_button_circle_brown"
+                android:contentDescription="@string/shuffle"
+                android:src="@drawable/ic_shop_shuffle"
+                android:scaleType="centerInside"
+                android:padding="14dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@animator/button_press_scale"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/badgeShuffleCost"
+                android:layout_width="wrap_content"
+                android:layout_height="14dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:gravity="center"
+                android:text="₦200"
+                android:textSize="7sp"
+                android:textColor="#80CBC4"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp">
+
+            <ImageButton
+                android:id="@+id/btnMenuBack"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_button_circle_brown"
+                android:contentDescription="@string/menu"
+                android:src="@drawable/ic_menu_pause"
+                android:scaleType="centerInside"
+                android:padding="14dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@animator/button_press_scale" />
+        </FrameLayout>
     </LinearLayout>
 
 </LinearLayout>
