@@ -68,6 +68,7 @@ class BoardView @JvmOverloads constructor(
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val tileBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val tileEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val tileEdgeDarkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val tileBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 1.5f
@@ -84,7 +85,11 @@ class BoardView @JvmOverloads constructor(
         color = Color.parseColor("#FFEB3B")
     }
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#30000000")
+        color = Color.parseColor("#40000000")
+        style = Paint.Style.FILL
+        maskFilter = BlurMaskFilter(4f, BlurMaskFilter.Blur.NORMAL)
+    }
+    private val tileTopGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
     private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -321,41 +326,72 @@ class BoardView @JvmOverloads constructor(
         val maxPixelX = boardLeft + tilePadding + maxX * (tileWidth + tilePadding) + tileWidth + maxLayer * layerOffsetX
         val minPixelY = boardTop + tilePadding + minY * (tileHeight + tilePadding) - maxLayer * layerOffsetY
         val maxPixelY = boardTop + tilePadding + maxY * (tileHeight + tilePadding) + tileHeight - minLayer * layerOffsetY
-        val padding = 20f
+        val padding = 24f
         val rect = RectF(minPixelX - padding, minPixelY - padding, maxPixelX + padding, maxPixelY + padding)
+
+        val bgShadow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#20000000")
+            maskFilter = BlurMaskFilter(8f, BlurMaskFilter.Blur.NORMAL)
+        }
+        canvas.drawRoundRect(RectF(rect.left + 3f, rect.top + 4f, rect.right + 3f, rect.bottom + 4f), 18f, 18f, bgShadow)
 
         bgPaint.shader = LinearGradient(
             rect.left, rect.top, rect.right, rect.bottom,
-            Color.parseColor("#1A4A4A"),
-            Color.parseColor("#0D3B3B"),
+            Color.parseColor("#1C5252"),
+            Color.parseColor("#0E3D3D"),
             Shader.TileMode.CLAMP
         )
-        canvas.drawRoundRect(rect, 16f, 16f, bgPaint)
+        canvas.drawRoundRect(rect, 18f, 18f, bgPaint)
 
-        val innerRect = RectF(rect.left + 8f, rect.top + 8f, rect.right - 8f, rect.bottom - 8f)
+        val innerRect = RectF(rect.left + 6f, rect.top + 6f, rect.right - 6f, rect.bottom - 6f)
         bgPaint.shader = LinearGradient(
             innerRect.left, innerRect.top, innerRect.right, innerRect.bottom,
-            Color.parseColor("#1F5555"),
-            Color.parseColor("#1A4A4A"),
+            Color.parseColor("#205A5A"),
+            Color.parseColor("#1C5252"),
             Shader.TileMode.CLAMP
         )
-        canvas.drawRoundRect(innerRect, 12f, 12f, bgPaint)
+        canvas.drawRoundRect(innerRect, 14f, 14f, bgPaint)
+
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 1.5f
+            color = Color.parseColor("#2A6666")
+        }
+        canvas.drawRoundRect(rect, 18f, 18f, borderPaint)
+
         bgPaint.shader = null
+        borderPaint.reset()
     }
 
     private fun drawSlotArea(canvas: Canvas) {
+        val slotShadow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#30000000")
+            maskFilter = BlurMaskFilter(6f, BlurMaskFilter.Blur.NORMAL)
+        }
+        canvas.drawRoundRect(
+            RectF(slotRect.left + 2f, slotRect.top + 3f, slotRect.right + 2f, slotRect.bottom + 3f),
+            14f, 14f, slotShadow
+        )
+
         slotPaint.shader = LinearGradient(
             slotRect.left, slotRect.top, slotRect.left, slotRect.bottom,
             Color.parseColor("#5D4037"),
             Color.parseColor("#4E342E"),
             Shader.TileMode.CLAMP
         )
-        canvas.drawRoundRect(slotRect, 12f, 12f, slotPaint)
-        canvas.drawRoundRect(slotRect, 12f, 12f, slotBorderPaint)
+        canvas.drawRoundRect(slotRect, 14f, 14f, slotPaint)
+        slotPaint.shader = null
+
+        val slotBorderOuter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 1.5f
+            color = Color.parseColor("#7B5B4A")
+        }
+        canvas.drawRoundRect(slotRect, 14f, 14f, slotBorderOuter)
 
         val innerSlot = RectF(
-            slotRect.left + 4f, slotRect.top + 4f,
-            slotRect.right - 4f, slotRect.bottom - 4f
+            slotRect.left + 3f, slotRect.top + 3f,
+            slotRect.right - 3f, slotRect.bottom - 3f
         )
         slotPaint.shader = LinearGradient(
             innerSlot.left, innerSlot.top, innerSlot.left, innerSlot.bottom,
@@ -363,21 +399,21 @@ class BoardView @JvmOverloads constructor(
             Color.parseColor("#5D4037"),
             Shader.TileMode.CLAMP
         )
-        canvas.drawRoundRect(innerSlot, 8f, 8f, slotPaint)
+        canvas.drawRoundRect(innerSlot, 10f, 10f, slotPaint)
         slotPaint.shader = null
 
         val emptySlotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#4E342E")
+            color = Color.parseColor("#5A4540")
             style = Paint.Style.STROKE
             strokeWidth = 1f
-            pathEffect = DashPathEffect(floatArrayOf(8f, 4f), 0f)
+            pathEffect = DashPathEffect(floatArrayOf(6f, 4f), 0f)
         }
 
         for (i in 0 until maxSlotSize) {
             val x = slotRect.left + 8f + i * slotTileW
             val y = slotRect.centerY() - slotTileH / 2f
             val emptyRect = RectF(x, y, x + slotTileW * 0.9f, y + slotTileH)
-            canvas.drawRoundRect(emptyRect, 4f, 4f, emptySlotPaint)
+            canvas.drawRoundRect(emptyRect, 5f, 5f, emptySlotPaint)
         }
 
         for ((index, tile) in slotTiles.withIndex()) {
@@ -388,35 +424,36 @@ class BoardView @JvmOverloads constructor(
             val isSelected = tile == selectedSlotTile
             val isPulsing = isSelected && selectedPulse > 0f
 
-            val scale = if (isPulsing) 1f + selectedPulse * 0.05f else 1f
+            val scale = if (isPulsing) 1f + selectedPulse * 0.06f else 1f
             canvas.save()
             canvas.scale(scale, scale, tileRect.centerX(), tileRect.centerY())
 
-            shadowPaint.alpha = 60
             canvas.drawRoundRect(
                 RectF(tileRect.left + 1f, tileRect.top + 2f, tileRect.right + 1f, tileRect.bottom + 2f),
-                6f, 6f, shadowPaint
+                6f, 6f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.parseColor("#30000000")
+                    maskFilter = BlurMaskFilter(3f, BlurMaskFilter.Blur.NORMAL)
+                }
             )
-            shadowPaint.alpha = 48
 
             tileBgPaint.shader = LinearGradient(
                 tileRect.left, tileRect.top, tileRect.left, tileRect.bottom,
-                Color.parseColor("#FFF8E1"),
+                Color.parseColor("#FFFEF7"),
                 Color.parseColor("#F5E6D3"),
                 Shader.TileMode.CLAMP
             )
             canvas.drawRoundRect(tileRect, 6f, 6f, tileBgPaint)
             tileBgPaint.shader = null
 
-            tileBorderPaint.color = if (isSelected) Color.parseColor("#FF6F00") else Color.parseColor("#A1887F")
+            tileBorderPaint.color = if (isSelected) Color.parseColor("#FF6F00") else Color.parseColor("#B0A099")
             canvas.drawRoundRect(tileRect, 6f, 6f, tileBorderPaint)
 
             if (isSelected) {
                 val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.parseColor("#FF6F00")
                     style = Paint.Style.FILL
-                    maskFilter = BlurMaskFilter(6f + selectedPulse * 3f, BlurMaskFilter.Blur.NORMAL)
-                    alpha = (0.3f * 255).toInt()
+                    maskFilter = BlurMaskFilter(8f + selectedPulse * 4f, BlurMaskFilter.Blur.NORMAL)
+                    alpha = (0.35f * 255).toInt()
                 }
                 canvas.drawRoundRect(tileRect, 6f, 6f, glowPaint)
             }
@@ -474,52 +511,73 @@ class BoardView @JvmOverloads constructor(
             }
         }
 
-        val shadowRect = RectF(left + 2f, top + 3f, left + tileWidth + 2f, top + tileHeight + 3f)
-        canvas.drawRoundRect(shadowRect, cornerRadius, cornerRadius, shadowPaint)
-
         val isFree = tile in freeTiles
         val isFaceUp = if (isFlipping) !showBack else tile.isFaceUp
 
+        canvas.drawRoundRect(
+            RectF(left + 2f, top + 3f, left + tileWidth + 2f, top + tileHeight + 3f),
+            cornerRadius, cornerRadius, shadowPaint
+        )
+
+        val edgeDepth = 5f
+        tileEdgePaint.shader = LinearGradient(
+            left, top + tileHeight - edgeDepth, left, top + tileHeight + edgeDepth,
+            if (isFree) Color.parseColor("#B0A099") else Color.parseColor("#9E9088"),
+            if (isFree) Color.parseColor("#8D7E76") else Color.parseColor("#7A6C64"),
+            Shader.TileMode.CLAMP
+        )
+        val edgeRect = RectF(left + 1f, top + tileHeight - edgeDepth, left + tileWidth - 1f, top + tileHeight + edgeDepth)
+        canvas.drawRoundRect(edgeRect, cornerRadius * 0.5f, cornerRadius * 0.5f, tileEdgePaint)
+        tileEdgePaint.shader = null
+
         if (isFaceUp) {
             tileBgPaint.shader = LinearGradient(
-                left, top, left, top + tileHeight,
-                Color.parseColor("#FFF8E1"),
+                left, top, left + tileWidth * 0.3f, top + tileHeight,
+                Color.parseColor("#FFFEF7"),
                 Color.parseColor("#F5E6D3"),
                 Shader.TileMode.CLAMP
             )
         } else {
             tileBgPaint.shader = null
-            tileBgPaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
+            tileBgPaint.color = if (isFree) Color.parseColor("#E0D5CC") else Color.parseColor("#C8BDB4")
         }
         canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBgPaint)
         tileBgPaint.shader = null
 
-        tileEdgePaint.color = if (isFree) Color.parseColor("#D7CCC8") else Color.parseColor("#BCAAA4")
-        val edgeRect = RectF(left, top + tileHeight - 4f, left + tileWidth, top + tileHeight + 3f)
-        canvas.drawRoundRect(edgeRect, cornerRadius, cornerRadius, tileEdgePaint)
-
         tileBorderPaint.color = when {
-            !isFree -> Color.parseColor("#8D6E63")
-            isFaceUp -> Color.parseColor("#A1887F")
-            else -> Color.parseColor("#8D6E63")
+            !isFree -> Color.parseColor("#9E8E82")
+            isFaceUp -> Color.parseColor("#B0A099")
+            else -> Color.parseColor("#9E8E82")
         }
+        tileBorderPaint.strokeWidth = if (isFree) 2f else 1.5f
         canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileBorderPaint)
 
         if (isFaceUp) {
+            val innerPadX = tileWidth * 0.05f
+            val innerPadY = tileHeight * 0.05f
             val innerRect = RectF(
-                left + tileWidth * 0.06f,
-                top + tileHeight * 0.06f,
-                left + tileWidth - tileWidth * 0.06f,
-                top + tileHeight - tileHeight * 0.12f
+                left + innerPadX,
+                top + innerPadY,
+                left + tileWidth - innerPadX,
+                top + tileHeight - innerPadY * 2f
             )
             tileBgPaint.shader = LinearGradient(
                 innerRect.left, innerRect.top, innerRect.right, innerRect.bottom,
-                Color.parseColor("#FFECB3"),
-                Color.parseColor("#FFE0B2"),
+                Color.parseColor("#FFFDF5"),
+                Color.parseColor("#FFF3E0"),
                 Shader.TileMode.CLAMP
             )
-            canvas.drawRoundRect(innerRect, cornerRadius * 0.6f, cornerRadius * 0.6f, tileBgPaint)
+            canvas.drawRoundRect(innerRect, cornerRadius * 0.5f, cornerRadius * 0.5f, tileBgPaint)
             tileBgPaint.shader = null
+
+            tileTopGlowPaint.shader = LinearGradient(
+                left, top, left, top + tileHeight * 0.3f,
+                Color.parseColor("#20FFFFFF"),
+                Color.TRANSPARENT,
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, tileTopGlowPaint)
+            tileTopGlowPaint.shader = null
 
             drawTileIcon(canvas, tile, rect)
         } else {
@@ -527,17 +585,19 @@ class BoardView @JvmOverloads constructor(
         }
 
         if (isFree && !isFaceUp) {
+            val freeAlpha = (80 + selectedPulse * 40).toInt()
             val freeGlow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.parseColor("#26A69A")
                 style = Paint.Style.STROKE
-                strokeWidth = 2f
-                alpha = (100 + selectedPulse * 50).toInt()
+                strokeWidth = 2.5f
+                alpha = freeAlpha
             }
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, freeGlow)
         }
 
         tileBgPaint.alpha = 255
         tileBorderPaint.alpha = 255
+        tileBorderPaint.strokeWidth = 1.5f
         iconPaint.alpha = 255
         textPaint.alpha = 255
 
@@ -548,48 +608,68 @@ class BoardView @JvmOverloads constructor(
         val cx = rect.centerX()
         val cy = rect.centerY()
 
-        val patternPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#8D6E63")
+        val innerRect = RectF(
+            rect.left + tileWidth * 0.1f,
+            rect.top + tileHeight * 0.08f,
+            rect.right - tileWidth * 0.1f,
+            rect.bottom - tileHeight * 0.08f
+        )
+
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#A08070")
             style = Paint.Style.STROKE
             strokeWidth = 1.5f
         }
+        canvas.drawRoundRect(innerRect, 4f, 4f, borderPaint)
 
-        val innerRect = RectF(
-            rect.left + tileWidth * 0.12f,
-            rect.top + tileHeight * 0.1f,
-            rect.right - tileWidth * 0.12f,
-            rect.bottom - tileHeight * 0.1f
+        val inner2 = RectF(
+            innerRect.left + tileWidth * 0.04f,
+            innerRect.top + tileHeight * 0.04f,
+            innerRect.right - tileWidth * 0.04f,
+            innerRect.bottom - tileHeight * 0.04f
         )
-        canvas.drawRoundRect(innerRect, 6f, 6f, patternPaint)
+        borderPaint.color = Color.parseColor("#B09080")
+        borderPaint.strokeWidth = 1f
+        canvas.drawRoundRect(inner2, 3f, 3f, borderPaint)
 
-        val diamondSize = tileWidth * 0.15f
         val diamondPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#A1887F")
+            color = Color.parseColor("#B89888")
             style = Paint.Style.FILL
         }
 
-        for (dy in -1..1) {
-            for (dx in -1..1) {
-                val px = cx + dx * tileWidth * 0.22f
-                val py = cy + dy * tileHeight * 0.2f
-                if (px > innerRect.left + 4f && px < innerRect.right - 4f &&
-                    py > innerRect.top + 4f && py < innerRect.bottom - 4f) {
-                    val dPath = Path()
-                    dPath.moveTo(px, py - diamondSize)
-                    dPath.lineTo(px + diamondSize, py)
-                    dPath.lineTo(px, py + diamondSize)
-                    dPath.lineTo(px - diamondSize, py)
-                    dPath.close()
-                    canvas.drawPath(dPath, diamondPaint)
-                }
+        val cols = 3
+        val rows = 4
+        val spacingX = inner2.width() / (cols + 1)
+        val spacingY = inner2.height() / (rows + 1)
+        val diamondSize = minOf(spacingX, spacingY) * 0.28f
+
+        for (row in 1..rows) {
+            for (col in 1..cols) {
+                val px = inner2.left + col * spacingX
+                val py = inner2.top + row * spacingY
+
+                val dPath = Path()
+                dPath.moveTo(px, py - diamondSize)
+                dPath.lineTo(px + diamondSize * 0.7f, py)
+                dPath.lineTo(px, py + diamondSize)
+                dPath.lineTo(px - diamondSize * 0.7f, py)
+                dPath.close()
+                canvas.drawPath(dPath, diamondPaint)
             }
         }
 
         val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#6D4C41")
+            color = Color.parseColor("#8D6E63")
             style = Paint.Style.FILL
         }
-        canvas.drawCircle(cx, cy, tileWidth * 0.08f, centerPaint)
+        canvas.drawCircle(cx, cy, tileWidth * 0.06f, centerPaint)
+
+        val centerRing = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#A08070")
+            style = Paint.Style.STROKE
+            strokeWidth = 1f
+        }
+        canvas.drawCircle(cx, cy, tileWidth * 0.09f, centerRing)
     }
 
     private fun drawTileIcon(canvas: Canvas, tile: Tile, rect: RectF) {
@@ -1080,8 +1160,8 @@ class BoardView @JvmOverloads constructor(
 
         animatingTile = AnimatingTile(tile, fromX, fromY, targetX, targetY)
         ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 350
-            interpolator = OvershootInterpolator(1.2f)
+            duration = 380
+            interpolator = OvershootInterpolator(1.1f)
             addUpdateListener {
                 animatingTile?.progress = it.animatedValue as Float
                 invalidate()
@@ -1147,20 +1227,21 @@ class BoardView @JvmOverloads constructor(
     private fun spawnBreakParticles(rect: RectF) {
         val colors = intArrayOf(
             Color.parseColor("#FFD54F"),
-            Color.parseColor("#8D6E63"),
             Color.parseColor("#A1887F"),
+            Color.parseColor("#BCAAA4"),
             Color.parseColor("#FFE0B2"),
-            Color.parseColor("#BCAAA4")
+            Color.parseColor("#D7CCC8"),
+            Color.parseColor("#FFFFFF")
         )
         val cx = rect.centerX()
         val cy = rect.centerY()
 
-        for (i in 0 until 20) {
+        for (i in 0 until 28) {
             val angle = Random.nextFloat() * 360f
-            val speed = 2f + Random.nextFloat() * 5f
+            val speed = 1.5f + Random.nextFloat() * 6f
             val vx = cos(Math.toRadians(angle.toDouble())).toFloat() * speed
-            val vy = sin(Math.toRadians(angle.toDouble())).toFloat() * speed - 3f
-            val size = 3f + Random.nextFloat() * 6f
+            val vy = sin(Math.toRadians(angle.toDouble())).toFloat() * speed - 4f
+            val size = 2f + Random.nextFloat() * 5f
             val color = colors[Random.nextInt(colors.size)]
 
             particles.add(Particle(cx, cy, vx, vy, size, color))
@@ -1176,7 +1257,8 @@ class BoardView @JvmOverloads constructor(
 
         flippingTile = FlippingTile(tile, cx, cy)
         ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 300
+            duration = 350
+            interpolator = DecelerateInterpolator(1.5f)
             addUpdateListener {
                 flippingTile?.progress = it.animatedValue as Float
                 invalidate()

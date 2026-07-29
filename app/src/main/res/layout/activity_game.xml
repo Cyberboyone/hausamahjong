@@ -13,8 +13,8 @@
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:background="@drawable/bg_hud_top"
         android:elevation="12dp"
         android:gravity="center_vertical">
@@ -24,76 +24,109 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginEnd="20dp">
+            android:layout_marginEnd="16dp">
 
             <TextView
                 android:id="@+id/tvLevel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/level"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="#80CBC4"
-                android:letterSpacing="0.1" />
+                android:letterSpacing="0.15"
+                android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvLevelNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#FFD54F" />
+                android:textColor="#FFD54F"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
         </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="28dp"
+            android:background="#306666"
+            android:layout_marginEnd="16dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginEnd="20dp">
+            android:layout_marginEnd="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/moves"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="#80CBC4"
-                android:letterSpacing="0.1" />
+                android:letterSpacing="0.15"
+                android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvMoves"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
         </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="28dp"
+            android:background="#306666"
+            android:layout_marginEnd="16dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginEnd="20dp">
+            android:layout_marginEnd="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Time"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="#80CBC4"
-                android:letterSpacing="0.1" />
+                android:letterSpacing="0.15"
+                android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvTimer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0:00"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
         </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="28dp"
+            android:background="#306666"
+            android:layout_marginEnd="16dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -106,18 +139,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/hints"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="#80CBC4"
-                android:letterSpacing="0.1" />
+                android:letterSpacing="0.15"
+                android:textAllCaps="true" />
 
             <TextView
                 android:id="@+id/tvHints"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#FFD54F" />
+                android:textColor="#FFD54F"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
         </LinearLayout>
 
         <LinearLayout
@@ -129,8 +167,8 @@
             android:background="@drawable/bg_coin_counter"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:elevation="4dp">
 
             <ImageView
@@ -147,10 +185,10 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#FFD54F"
-                android:shadowColor="#000000"
-                android:shadowDx="1"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
                 android:shadowDy="1"
-                android:shadowRadius="2" />
+                android:shadowRadius="3" />
         </LinearLayout>
     </LinearLayout>
 
@@ -167,8 +205,8 @@
         android:orientation="horizontal"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="18dp"
         android:background="@drawable/bg_hud_bottom"
         android:elevation="12dp"
         android:gravity="center">
@@ -176,7 +214,7 @@
         <ImageButton
             android:id="@+id/btnUndo"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="54dp"
             android:layout_weight="1"
             android:layout_marginEnd="12dp"
             android:background="@drawable/bg_button_circle_brown"
@@ -190,7 +228,7 @@
         <ImageButton
             android:id="@+id/btnHint"
             android:layout_width="0dp"
-            android:layout_height="64dp"
+            android:layout_height="62dp"
             android:layout_weight="1"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
@@ -205,7 +243,7 @@
         <ImageButton
             android:id="@+id/btnMenuBack"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="54dp"
             android:layout_weight="1"
             android:layout_marginStart="12dp"
             android:background="@drawable/bg_button_circle_brown"

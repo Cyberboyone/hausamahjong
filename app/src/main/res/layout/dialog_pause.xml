@@ -13,19 +13,20 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="#FFD54F"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
         android:shadowDy="1"
-        android:shadowRadius="3"
+        android:shadowRadius="4"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="28dp" />
 
     <Button
         android:id="@+id/btnResume"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="50dp"
         android:text="@string/resume"
         android:textSize="16sp"
+        android:textStyle="bold"
         android:textColor="#0D4F24"
         android:background="@drawable/bg_button_gold"
         android:layout_marginBottom="12dp"
@@ -34,7 +35,7 @@
     <Button
         android:id="@+id/btnRestart"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="50dp"
         android:text="@string/restart"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
@@ -45,7 +46,7 @@
     <Button
         android:id="@+id/btnMenu"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="50dp"
         android:text="@string/menu"
         android:textSize="16sp"
         android:textColor="#A5D6A7"
