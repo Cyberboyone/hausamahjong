@@ -8,6 +8,11 @@ object MatchEngine {
     private var freeTilesCache: List<Tile>? = null
     private var cacheBoardKey: String? = null
 
+    // Zobrist hash tables - precomputed at initialization
+    private val ZOBRIST_TILE_COUNT = 500
+    private val ZOBRIST_STATE_COUNT = 4
+    private val zobristTables: Array<Array<Long>> = Array(ZOBRIST_TILE_COUNT) { Array(ZOBRIST_STATE_COUNT) { Random(12345).nextLong() } }
+
     fun invalidateCache() {
         freeTilesCache = null
         cacheBoardKey = null
@@ -57,7 +62,7 @@ object MatchEngine {
 
     fun canMatch(tileA: Tile, tileB: Tile, board: Board, excludeSlotTiles: Boolean = true): Boolean {
         if (tileA.id == tileB.id) return false
-        if (tileA.symbolId != tileB.symbolId) return false
+        if (!tileA.canMatchWith(tileB)) return false
         if (tileA.isMatched || tileB.isMatched) return false
         if (excludeSlotTiles && (tileA.isInSlot || tileB.isInSlot)) return false
         return isTileFree(tileA, board, excludeSlotTiles) && isTileFree(tileB, board, excludeSlotTiles)
@@ -77,6 +82,15 @@ object MatchEngine {
 
     fun isBoardCleared(board: Board): Boolean = board.isCleared()
 
+    data class MoveScore(
+        val tileA: Tile,
+        val tileB: Tile,
+        val score: Int,
+        val tilesUnblocked: Int,
+        val layerCleared: Boolean,
+        val createsNewMatches: Boolean
+    )
+
     fun findMatchingPair(board: Board, excludeSlotTiles: Boolean = true): Pair<Tile, Tile>? {
         val freeTiles = getFreeTiles(board, excludeSlotTiles)
         val symbolGroups = freeTiles.groupBy { it.symbolId }
@@ -93,6 +107,100 @@ object MatchEngine {
             }
         }
         return null
+    }
+
+    fun findAllMatchingPairs(board: Board, excludeSlotTiles: Boolean = true): List<Pair<Tile, Tile>> {
+        val freeTiles = getFreeTiles(board, excludeSlotTiles)
+        val symbolGroups = freeTiles.groupBy { it.symbolId }
+        val pairs = mutableListOf<Pair<Tile, Tile>>()
+
+        for ((_, tiles) in symbolGroups) {
+            if (tiles.size >= 2) {
+                for (i in 0 until tiles.size - 1) {
+                    for (j in i + 1 until tiles.size) {
+                        if (canMatch(tiles[i], tiles[j], board, excludeSlotTiles)) {
+                            pairs.add(tiles[i] to tiles[j])
+                        }
+                    }
+                }
+            }
+        }
+        return pairs
+    }
+
+    fun getValidMoves(board: Board, excludeSlotTiles: Boolean = true): List<MoveScore> {
+        val freeTiles = getFreeTiles(board, excludeSlotTiles)
+        val symbolGroups = freeTiles.groupBy { it.symbolId }
+        val moves = mutableListOf<MoveScore>()
+
+        for ((_, tiles) in symbolGroups) {
+            if (tiles.size >= 2) {
+                for (i in 0 until tiles.size - 1) {
+                    for (j in i + 1 until tiles.size) {
+                        if (canMatch(tiles[i], tiles[j], board, excludeSlotTiles)) {
+                            val score = calculateMoveScore(tiles[i], tiles[j], board)
+                            moves.add(score)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sort by score descending (best moves first)
+        return moves.sortedByDescending { it.score }
+    }
+
+    private fun calculateMoveScore(tileA: Tile, tileB: Tile, board: Board): MoveScore {
+        var score = 100 // base score
+
+        // Bonus for clearing higher layers
+        val maxLayer = board.maxLayers - 1
+        val avgLayer = (tileA.layer + tileB.layer) / 2f
+        score += ((maxLayer - avgLayer) * 50).toInt()
+
+        // Count tiles that would be unblocked
+        val newBoard = applyMatch(board, tileA, tileB)
+        val tilesUnblocked = countNewlyFreedTiles(board, newBoard)
+        score += tilesUnblocked * 30
+
+        // Bonus for clearing a layer
+        val layerCleared = isLayerCleared(newBoard, tileA.layer)
+
+        // Check if this creates new matches
+        val newFreeTiles = getFreeTiles(newBoard)
+        val newSymbolGroups = newFreeTiles.groupBy { it.symbolId }
+        val createsNewMatches = newSymbolGroups.values.any { it.size >= 2 }
+        if (createsNewMatches) score += 100
+
+        // Bonus for bonus/wild tiles
+        if (tileA.category == TileCategory.BONUS || tileB.category == TileCategory.BONUS) score += 200
+        if (tileA.category == TileCategory.WILD || tileB.category == TileCategory.WILD) score += 150
+        if (tileA.category == TileCategory.LOCKED || tileB.category == TileCategory.LOCKED) score += 300
+
+        return MoveScore(tileA, tileB, score, tilesUnblocked, layerCleared, createsNewMatches)
+    }
+
+    private fun countNewlyFreedTiles(oldBoard: Board, newBoard: Board): Int {
+        val oldFree = getFreeTiles(oldBoard).map { it.id }.toSet()
+        val newFree = getFreeTiles(newBoard).map { it.id }.toSet()
+        return newFree.minus(oldFree).size
+    }
+
+    private fun isLayerCleared(board: Board, layer: Int): Boolean {
+        return board.getTilesAtLayer(layer).all { it.isMatched }
+    }
+
+    fun getHint(board: Board): Pair<Tile, Tile>? {
+        val moves = getValidMoves(board)
+        return if (moves.isNotEmpty()) moves[0].tileA to moves[0].tileB else null
+    }
+
+    fun getPossibleMovesCount(board: Board): Int {
+        val freeTiles = getFreeTiles(board)
+        val symbolGroups = freeTiles.groupBy { it.symbolId }
+        return symbolGroups.values.sumOf { tiles ->
+            if (tiles.size >= 2) tiles.size * (tiles.size - 1) / 2 else 0
+        }
     }
 
     fun isSolvable(board: Board, maxDepth: Int = 100): Boolean {
@@ -117,7 +225,8 @@ object MatchEngine {
                     for (j in i + 1 until tiles.size) {
                         if (canMatch(tiles[i], tiles[j], board)) {
                             val newBoard = applyMatch(board, tiles[i], tiles[j])
-                            val branchSeen = mutableSetOf(zobristKey)
+                            // Create a new seen set for this branch
+                            val branchSeen = mutableSetOf<Long>().apply { addAll(seen) }
                             if (isSolvableRecursive(newBoard, branchSeen, depth + 1, maxDepth)) return true
                         }
                     }
@@ -128,64 +237,38 @@ object MatchEngine {
         return false
     }
 
-    // Zobrist-style hashing for board state
-    private val zobristTables: Array<Array<Long>> by lazy {
-        val rng = Random(12345)
-        val tileCount = 500
-        val stateCount = 4 // unmatched, matched, faceUp, inSlot combinations
-        Array(tileCount) { Array(stateCount) { rng.nextLong() } }
-    }
+    fun shuffleBoard(board: Board, maxAttempts: Int = 10): Board {
+        val unmatched = board.tiles.filter { !it.isMatched && !it.isInSlot }
+        if (unmatched.size < 2) return board
 
-    fun zobristHash(board: Board): Long {
-        var hash = 0L
-        for (tile in board.tiles) {
-            if (tile.id < zobristTables.size) {
-                val stateIndex = when {
-                    tile.isMatched -> 0
-                    tile.isInSlot -> 1
-                    tile.isFaceUp -> 2
-                    else -> 3
-                }
-                hash = hash xor zobristTables[tile.id][stateIndex]
+        for (attempt in 0 until maxAttempts) {
+            val symbols = unmatched.map { it.symbolId }.shuffled()
+            val rng = Random(System.currentTimeMillis() + attempt)
+
+            val updatedTiles = board.tiles.map { tile ->
+                if (!tile.isMatched && !tile.isInSlot) {
+                    val idx = unmatched.indexOfFirst { it.id == tile.id }
+                    if (idx >= 0 && idx < symbols.size) {
+                        tile.copyWith(symbolId = symbols[idx], isFaceUp = true)
+                    } else tile
+                } else tile
+            }
+
+            val newBoard = board.copyWithUpdatedTiles(updatedTiles)
+
+            // Validate solvability after shuffle
+            if (isSolvable(newBoard, maxDepth = 50)) {
+                invalidateCache()
+                return newBoard
             }
         }
-        return hash
-    }
 
-    fun getHint(board: Board): Pair<Tile, Tile>? = findMatchingPair(board)
-
-    fun getPossibleMovesCount(board: Board): Int {
-        val freeTiles = getFreeTiles(board)
-        val symbolGroups = freeTiles.groupBy { it.symbolId }
-        return symbolGroups.values.sumOf { tiles ->
-            if (tiles.size >= 2) tiles.size * (tiles.size - 1) / 2 else 0
-        }
-    }
-
-    /**
-     * Shuffle remaining unmatched tiles on the board.
-     * Redistributes symbols randomly among current positions.
-     */
-    fun shuffleBoard(board: Board): Board {
-        val unmatched = board.tiles.filter { !it.isMatched && !it.isInSlot }
-        val symbols = unmatched.map { it.symbolId }.shuffled()
-        val rng = Random(System.currentTimeMillis())
-        val shuffled = symbols.shuffled(rng)
-
-        val updatedTiles = board.tiles.map { tile ->
-            if (!tile.isMatched && !tile.isInSlot) {
-                val idx = unmatched.indexOfFirst { it.id == tile.id }
-                tile.copyWith(symbolId = shuffled[idx], isFaceUp = true)
-            } else tile
-        }
+        // Fallback: return last attempt even if not verified solvable
         invalidateCache()
-        return board.copyWithUpdatedTiles(updatedTiles)
+        return board
     }
 
-    /**
-     * Analyze which pairs the player missed.
-     */
-    fun findMissedPairs(board: Board, moveHistory: List<Move>): List<Pair<Tile, Tile>> {
+    fun findMissedPairs(board: Board, moveHistory: List<MoveRecord>): List<Pair<Tile, Tile>> {
         val allFreeTiles = getFreeTiles(board)
         val missed = mutableListOf<Pair<Tile, Tile>>()
         val usedSymbols = mutableSetOf<String>()
@@ -193,11 +276,9 @@ object MatchEngine {
         val symbolGroups = allFreeTiles.groupBy { it.symbolId }
         for ((symbol, tiles) in symbolGroups) {
             if (tiles.size >= 2 && symbol !in usedSymbols) {
-                // Check if this pair was ever available to match
                 for (i in 0 until tiles.size - 1) {
                     for (j in i + 1 until tiles.size) {
                         if (canMatch(tiles[i], tiles[j], board)) {
-                            // Check if this pair was taken by the player
                             val wasMatched = moveHistory.any { move ->
                                 (move.tileA.id == tiles[i].id || move.tileA.id == tiles[j].id) ||
                                         (move.tileB.id == tiles[i].id || move.tileB.id == tiles[j].id)
@@ -213,5 +294,26 @@ object MatchEngine {
             }
         }
         return missed
+    }
+
+    fun zobristHash(board: Board): Long {
+        var hash = 0L
+        for (tile in board.tiles) {
+            if (tile.id < ZOBRIST_TILE_COUNT) {
+                val stateIndex = when {
+                    tile.isMatched -> 0
+                    tile.isInSlot -> 1
+                    tile.isFaceUp -> 2
+                    else -> 3
+                }
+                hash = hash xor zobristTables[tile.id][stateIndex]
+            }
+        }
+        return hash
+    }
+
+    fun getHintWithPriority(board: Board): Pair<Tile, Tile>? {
+        val moves = getValidMoves(board)
+        return moves.firstOrNull()?.let { it.tileA to it.tileB }
     }
 }

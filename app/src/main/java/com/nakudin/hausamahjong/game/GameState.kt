@@ -1,6 +1,6 @@
 package com.nakudin.hausamahjong.game
 
-data class Move(
+data class MoveRecord(
     val tileA: Tile,
     val tileB: Tile,
     val boardSnapshot: List<Tile>
@@ -16,7 +16,7 @@ data class GameState(
     val maxHints: Int = 3,
     var timeElapsed: Long = 0L,
     var startTime: Long = System.currentTimeMillis(),
-    val moveHistory: MutableList<Move> = mutableListOf(),
+    val moveHistory: MutableList<MoveRecord> = mutableListOf(),
     var isComplete: Boolean = false,
     var isFailed: Boolean = false
 ) {
@@ -27,7 +27,7 @@ data class GameState(
         val snapshot = board.tiles.map {
             Tile(it.id, it.symbolId, it.layer, it.x, it.y, it.isMatched, it.isFaceUp, it.isInSlot)
         }
-        moveHistory.add(Move(tileA, tileB, snapshot))
+        moveHistory.add(MoveRecord(tileA, tileB, snapshot))
         moves++
         score += 100 + (10 - hintsUsed.coerceAtMost(10)) * 10
     }
