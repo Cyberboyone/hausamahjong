@@ -250,7 +250,6 @@ class BoardView @JvmOverloads constructor(
         boardLeft = usableWidth / 2f - (minXpos + maxXpos) / 2f - tilePadding
         boardTop = slotAreaHeight + usableHeight / 2f - (minYpos + maxYpos) / 2f - tilePadding
 
-        if (boardLeft < 0f) boardLeft = 0f
         if (boardTop < slotAreaHeight) boardTop = slotAreaHeight + 8f
 
         val slotTop = 8f * density
