@@ -248,7 +248,7 @@ class BoardView @JvmOverloads constructor(
         val maxYpos = board.tiles.maxOf { it.y * (tileHeight + tilePadding) + tileHeight - it.layer * layerOffsetY }.toFloat()
 
         boardLeft = usableWidth / 2f - (minXpos + maxXpos) / 2f - tilePadding
-        boardTop = slotAreaHeight + usableHeight * 0.35f - (minYpos + maxYpos) / 2f - tilePadding
+        boardTop = slotAreaHeight + 16f * density - tilePadding
 
         if (boardTop < slotAreaHeight) boardTop = slotAreaHeight + 8f
 
